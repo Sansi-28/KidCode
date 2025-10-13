@@ -68,25 +68,30 @@ public class Parser {
     }
 
     private Statement parseStatement() {
-        switch (currentToken().type()) {
-            case MOVE: return parseMoveStatement();
-            case TURN: return parseTurnStatement();
-            case SAY: return parseSayStatement();
-            case REPEAT: return parseRepeatStatement();
-            case SET: return parseSetStatement();
-            case IF: return parseIfStatement();
-            case PEN: return parsePenStatement();
-            case COLOR: return parseSetColorStatement();
-            case DEFINE: return parseFunctionDefinitionStatement();
-            case IDENTIFIER: return parseFunctionCallStatement();
-            default:
-                // If we don't recognize the token as the start of a statement,
-                // we must advance past it to avoid an infinite loop.
-                errors.add("Error line " + currentToken().lineNumber() + ": Invalid start of a statement: '" + currentToken().literal() + "'");
-                advanceToNextStatement();
-                return null;
+    int line = currentToken().lineNumber(); // capture line number at start
+
+    Statement inner = switch (currentToken().type()) {
+        case MOVE -> parseMoveStatement();
+        case TURN -> parseTurnStatement();
+        case SAY -> parseSayStatement();
+        case REPEAT -> parseRepeatStatement();
+        case SET -> parseSetStatement();
+        case IF -> parseIfStatement();
+        case PEN -> parsePenStatement();
+        case COLOR -> parseSetColorStatement();
+        case DEFINE -> parseFunctionDefinitionStatement();
+        case IDENTIFIER -> parseFunctionCallStatement();
+        default -> {
+            errors.add("Error line " + currentToken().lineNumber() + ": Invalid start of a statement: '" + currentToken().literal() + "'");
+            advanceToNextStatement();
+            yield null;
         }
-    }
+    };
+
+    if (inner == null) return null;
+    return new LocatedStatement(inner, line); // wrap it with line number
+}
+
 
     private MoveStatement parseMoveStatement() {
         // ... (parsing logic is the same)

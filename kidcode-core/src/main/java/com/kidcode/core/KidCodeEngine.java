@@ -1,13 +1,17 @@
 package com.kidcode.core;
 
 import com.kidcode.core.ast.Statement;
-import com.kidcode.core.evaluator.Environment;
 import com.kidcode.core.evaluator.Evaluator;
+import com.kidcode.core.evaluator.ExecutionContext;
+import com.kidcode.core.evaluator.Environment;
 import com.kidcode.core.event.ExecutionEvent;
 import com.kidcode.core.lexer.Lexer;
 import com.kidcode.core.parser.Parser;
+
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.function.Supplier;
 
 public class KidCodeEngine {
@@ -33,7 +37,10 @@ public class KidCodeEngine {
         }
 
         Supplier<Boolean> stopSignal = () -> executionStopped;
-        Evaluator evaluator = new Evaluator(stopSignal);
+        ExecutionContext context = new ExecutionContext();
+        Set<Integer> breakpoints = new HashSet<>();  // empty set for now, add breakpoints as needed
+
+        Evaluator evaluator = new Evaluator(stopSignal, context, breakpoints);
         Environment environment = new Environment();
 
         return evaluator.evaluate(program, environment);
