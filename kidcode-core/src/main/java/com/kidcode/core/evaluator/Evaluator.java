@@ -167,86 +167,99 @@ public class Evaluator {
         };
     }
 
-    private Object evaluateExpression(Expression expr, Environment env) {
-        if (expr instanceof IntegerLiteral i) return i.value();
-        if (expr instanceof StringLiteral s) return s.value();
-        if (expr instanceof Identifier id) {
-            Object value = env.get(id.value());
-            if (value == null) return "Error: variable '" + id.value() + "' not found.";
-            return value;
-        }
-        if (expr instanceof InfixExpression infix) {
-            Object left = evaluateExpression(infix.left(), env);
-            if (isError(left)) return left;
-            Object right = evaluateExpression(infix.right(), env);
-            if (isError(right)) return right;
-            if (left instanceof String || right instanceof String) return String.valueOf(left) + String.valueOf(right);
-            if (left instanceof Integer l && right instanceof Integer r) {
-                return switch (infix.operator()) {
-                    case "+" -> l + r;
-                    case "-" -> l - r;
-                    case "*" -> l * r;
-                    case "/" -> (r == 0) ? "Error: Division by zero" : l / r;
-                    case "==" -> l.equals(r);
-                    case "!=" -> !l.equals(r);
-                    case ">" -> l > r;
-                    case "<" -> l < r;
-                    default -> "Error: Unknown operator '" + infix.operator() + "' for numbers.";
-                };
-            }
-            return "Error: Cannot perform operation '" + infix.operator() + "' on these types.";
-        }
-        if (expr instanceof ListLiteral listLiteral) {
-            List<Object> elements = new ArrayList<>();
-            for (Expression el : listLiteral.elements()) {
-                Object evaluated = evaluateExpression(el, env);
-                if (isError(evaluated)) return evaluated;
-                elements.add(evaluated);
-            }
-            return elements;
-        }
-        if (expr instanceof IndexExpression indexExpr) {
-            Object left = evaluateExpression(indexExpr.left(), env);
-            if (isError(left)) return left;
-            Object index = evaluateExpression(indexExpr.index(), env);
-            if (isError(index)) return index;
-            if (!(left instanceof List)) return "Error: index operator [] cannot be used on non-list type.";
-            if (!(index instanceof Integer)) return "Error: index must be a number.";
-            List<Object> list = (List<Object>) left;
-            int idx = (Integer) index;
-            if (idx < 0 || idx >= list.size()) return "Error: index " + idx + " out of bounds for list of size " + list.size() + ".";
-            return list.get(idx);
-        }
-        return "Error: Cannot evaluate expression";
-    }
 
-    private boolean isError(Object obj) {
-        return obj instanceof String s && s.startsWith("Error:");
+Object evaluateExpression(Expression expr, Environment env) {
+    if (expr instanceof IntegerLiteral i) {
+        return i.value();
     }
+    if (expr instanceof StringLiteral s) {
+        return s.value();
+    }
+    if (expr instanceof Identifier id) {
+        Object value = env.get(id.value());
+        if (value == null) return "Error: variable '" + id.value() + "' not found.";
+        return value;
+    }
+    if (expr instanceof InfixExpression infix) {
+        Object left = evaluateExpression(infix.left(), env);
+        if (isError(left)) return left;
+        Object right = evaluateExpression(infix.right(), env);
+        if (isError(right)) return right;
 
-    private void evaluateFunctionCall(FunctionCallStatement call, Environment env) {
-        FunctionDefinitionStatement func = env.getFunction(call.function().value());
-        if (func == null) {
-            events.add(new ExecutionEvent.SayEvent("Error: function '" + call.function().value() + "' not defined."));
+        // If either side is a string, only allow + for concatenation.
+        // Other operators with strings are errors.
+        if (left instanceof String || right instanceof String) {
+            if ("+".equals(infix.operator())) {
+                return String.valueOf(left) + String.valueOf(right);
+            }
+            return "Error: Cannot use '" + infix.operator() + "' with a string.";
+        }
+
+        if (left instanceof Integer l && right instanceof Integer r) {
+            return switch (infix.operator()) {
+                case "+" -> l + r;
+                case "-" -> l - r;
+                case "*" -> l * r;
+                case "/" -> (r == 0) ? "Error: Division by zero" : l / r;
+                case "==" -> l.equals(r);
+                case "!=" -> !l.equals(r);
+                case ">" -> l > r;
+                case "<" -> l < r;
+                default -> "Error: Unknown operator '" + infix.operator() + "' for numbers.";
+            };
+        }
+        return "Error: Cannot perform operation '" + infix.operator() + "' on these types.";
+    }
+    if (expr instanceof ListLiteral listLiteral) {
+        List<Object> elements = new ArrayList<>();
+        for (Expression el : listLiteral.elements()) {
+            Object evaluated = evaluateExpression(el, env);
+            if (isError(evaluated)) return evaluated;
+            elements.add(evaluated);
+        }
+        return elements;
+    }
+    if (expr instanceof IndexExpression indexExpr) {
+        Object left = evaluateExpression(indexExpr.left(), env);
+        if (isError(left)) return left;
+        Object index = evaluateExpression(indexExpr.index(), env);
+        if (isError(index)) return index;
+        if (!(left instanceof List<?>)) return "Error: index operator [] cannot be used on non-list type.";
+        if (!(index instanceof Integer)) return "Error: index must be a number.";
+        List<?> list = (List<?>) left;
+        int idx = (Integer) index;
+        if (idx < 0 || idx >= list.size()) return "Error: index " + idx + " out of bounds for list of size " + list.size() + ".";
+        return list.get(idx);
+    }
+    return "Error: Cannot evaluate expression";
+}
+
+private boolean isError(Object obj) {
+    return obj instanceof String s && s.startsWith("Error:");
+}
+
+private void evaluateFunctionCall(FunctionCallStatement call, Environment env) {
+    FunctionDefinitionStatement func = env.getFunction(call.function().value());
+    if (func == null) {
+        events.add(new ExecutionEvent.SayEvent("Error: function '" + call.function().value() + "' not defined."));
+        return;
+    }
+    List<String> paramNames = func.parameters().stream().map(Identifier::value).toList();
+    List<Expression> argExprs = call.arguments();
+    if (paramNames.size() != argExprs.size()) {
+        events.add(new ExecutionEvent.SayEvent("Error: function '" + call.function().value() + "' expects " + paramNames.size() + " arguments, got " + argExprs.size() + "."));
+        return;
+    }
+    Environment localEnv = new Environment(env);
+    for (int i = 0; i < paramNames.size(); i++) {
+        Object argVal = evaluateExpression(argExprs.get(i), env);
+        if (isError(argVal)) {
+            events.add(new ExecutionEvent.SayEvent((String) argVal));
             return;
         }
-        List<String> paramNames = func.parameters().stream().map(Identifier::value).toList();
-        List<Expression> argExprs = call.arguments();
-        if (paramNames.size() != argExprs.size()) {
-            events.add(new ExecutionEvent.SayEvent("Error: function '" + call.function().value() + "' expects " + paramNames.size() + " arguments, got " + argExprs.size() + "."));
-            return;
-        }
-        Environment localEnv = new Environment(env);
-        for (int i = 0; i < paramNames.size(); i++) {
-            Object argVal = evaluateExpression(argExprs.get(i), env);
-            if (isError(argVal)) {
-                events.add(new ExecutionEvent.SayEvent((String) argVal));
-                return;
-            }
-            localEnv.set(paramNames.get(i), argVal);
-        }
-        for (Statement bodyStmt : func.body()) {
-            evaluateStatement(bodyStmt, localEnv);
-        }
+        localEnv.set(paramNames.get(i), argVal);
+    }
+    for (Statement bodyStmt : func.body()) {
+        evaluateStatement(bodyStmt, localEnv);
     }
 }
