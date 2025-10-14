@@ -14,6 +14,29 @@ const closeButton = document.querySelector('.close-button');
 let editor;
 let validationTimeout;
 
+const canvas = document.getElementById('drawing-canvas');
+const ctx = canvas.getContext('2d');
+
+function resizeCanvasToDisplaySize() {
+  const dpr = window.devicePixelRatio || 1;
+  const rect = canvas.getBoundingClientRect();
+  const width = Math.max(1, Math.round(rect.width * dpr));
+  const height = Math.max(1, Math.round(rect.height * dpr));
+  if (canvas.width !== width || canvas.height !== height) {
+    canvas.width = width;
+    canvas.height = height;
+    // draw using CSS pixels
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  }
+}
+
+// Call on init and on resize
+resizeCanvasToDisplaySize();
+window.addEventListener('resize', resizeCanvasToDisplaySize);
+
+// If your drawing code assumes a 500×500 logical space,
+// consider scaling the drawing or mapping coordinates accordingly.
+
 // --- MONACO: Function to define and register our custom language ---
 function registerKidCodeLanguage() {
     monaco.languages.register({ id: 'kidcode' });
