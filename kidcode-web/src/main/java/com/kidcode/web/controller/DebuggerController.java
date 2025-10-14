@@ -7,8 +7,11 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/debugger")
 public class DebuggerController {
 
-    private final ExecutionContext context = new ExecutionContext();
+    private final ExecutionContext context;
 
+    public DebuggerController(ExecutionContext context) {
+        this.context = context;
+    }
     @PostMapping("/pause")
     public String pause() {
         context.pause();
