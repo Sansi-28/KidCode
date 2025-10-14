@@ -15,7 +15,7 @@ let editor;
 let validationTimeout;
 
 const canvas = document.getElementById('drawing-canvas');
-const ctx = canvas.getContext('2d');
+const c = canvas.getContext('2d');
 
 function resizeCanvasToDisplaySize() {
   const dpr = window.devicePixelRatio || 1;
@@ -26,7 +26,7 @@ function resizeCanvasToDisplaySize() {
     canvas.width = width;
     canvas.height = height;
     // draw using CSS pixels
-    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    c.setTransform(dpr, 0, 0, dpr, 0, 0);
   }
 }
 
