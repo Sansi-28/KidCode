@@ -1,3 +1,104 @@
+/* Dark mode: prefers-color-scheme and .dark-mode class */
+@media (prefers-color-scheme: dark) {
+  body {
+    background-color: #181a1b;
+    color: #e0e0e0;
+  }
+  header {
+    background-color: #23272e;
+    color: #fff;
+  }
+  .container, .editor-panel, .visual-panel {
+    background-color: #23272e;
+    color: #e0e0e0;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.25);
+  }
+  .panel-header {
+    border-bottom: 1px solid #333;
+  }
+  h3 {
+    color: #e0e0e0;
+  }
+  .animated-btn, .help-btn {
+    background-color: #23272e;
+    color: #e0e0e0;
+    border-color: #444;
+  }
+  .run-btn {
+    background: linear-gradient(145deg, #145a32 0%, #23272e 100%);
+    color: #fff;
+  }
+  #drawing-canvas {
+    background-color: #23272e;
+    border: 1px solid #444;
+  }
+  .output-log {
+    background-color: #23272e;
+    color: #e0e0e0;
+  }
+  #output-area {
+    background-color: #23272e;
+    color: #e0e0e0;
+    border-color: #444;
+  }
+  .modal-content {
+    background-color: #23272e;
+    color: #e0e0e0;
+    border: 1px solid #444;
+  }
+  #help-docs code, #help-docs pre > code {
+    background-color: #181a1b;
+    color: #e0e0e0;
+  }
+  #help-docs th {
+    background-color: #23272e;
+  }
+}
+
+body.dark-mode,
+body.dark-mode header,
+body.dark-mode .container,
+body.dark-mode .editor-panel,
+body.dark-mode .visual-panel,
+body.dark-mode .panel-header,
+body.dark-mode h3,
+body.dark-mode .animated-btn,
+body.dark-mode .help-btn,
+body.dark-mode .run-btn,
+body.dark-mode #drawing-canvas,
+body.dark-mode .output-log,
+body.dark-mode #output-area,
+body.dark-mode .modal-content {
+  background-color: #23272e !important;
+  color: #e0e0e0 !important;
+  border-color: #444 !important;
+}
+body.dark-mode .run-btn {
+  background: linear-gradient(145deg, #145a32 0%, #23272e 100%) !important;
+  color: #fff !important;
+}
+body.dark-mode #drawing-canvas {
+  background-color: #23272e !important;
+  border: 1px solid #444 !important;
+}
+body.dark-mode #output-area {
+  background-color: #23272e !important;
+  color: #e0e0e0 !important;
+  border-color: #444 !important;
+}
+body.dark-mode .modal-content {
+  background-color: #23272e !important;
+  color: #e0e0e0 !important;
+  border: 1px solid #444 !important;
+}
+body.dark-mode #help-docs code,
+body.dark-mode #help-docs pre > code {
+  background-color: #181a1b !important;
+  color: #e0e0e0 !important;
+}
+body.dark-mode #help-docs th {
+  background-color: #23272e !important;
+}
 body {
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   margin: 0;

@@ -1,3 +1,38 @@
+// --- DARK MODE TOGGLE ---
+const darkModeToggle = document.getElementById('dark-mode-toggle');
+
+function setDarkMode(enabled) {
+    if (enabled) {
+        document.body.classList.add('dark-mode');
+    } else {
+        document.body.classList.remove('dark-mode');
+    }
+}
+
+// Load preference from localStorage
+const darkPref = localStorage.getItem('darkMode');
+if (darkPref === 'true' || (darkPref === null && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+    setDarkMode(true);
+} else {
+    setDarkMode(false);
+}
+
+darkModeToggle.addEventListener('click', () => {
+    const enabled = !document.body.classList.contains('dark-mode');
+    setDarkMode(enabled);
+    localStorage.setItem('darkMode', enabled);
+    // Optionally update icon/text
+    darkModeToggle.innerHTML = enabled
+        ? '<span class="button-icon"><i class="fa-solid fa-sun"></i></span> Light Mode'
+        : '<span class="button-icon"><i class="fa-solid fa-moon"></i></span> Dark Mode';
+});
+
+// Set initial button text/icon
+if (document.body.classList.contains('dark-mode')) {
+    darkModeToggle.innerHTML = '<span class="button-icon"><i class="fa-solid fa-sun"></i></span> Light Mode';
+} else {
+    darkModeToggle.innerHTML = '<span class="button-icon"><i class="fa-solid fa-moon"></i></span> Dark Mode';
+}
 // File: kidcode-web/src/main/resources/static/app.js
 
 // --- 1. GET REFERENCES TO OUR HTML ELEMENTS ---
