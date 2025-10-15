@@ -2,6 +2,7 @@
 
 // --- 1. GET REFERENCES TO OUR HTML ELEMENTS ---
 const runButton = document.getElementById('run-button');
+const clearButton = document.getElementById('clearBtn');
 const editorContainer = document.getElementById('editor-container');
 const drawingCanvas = document.getElementById('drawing-canvas');
 const outputArea = document.getElementById('output-area');
@@ -128,6 +129,27 @@ runButton.addEventListener('click', async () => {
     }
 });
 
+// --- 🧹 NEW: ADD EVENT LISTENER TO CLEAR BUTTON ---
+clearButton.addEventListener('click', () => {
+    try {
+        // 1️⃣ Clear the Monaco editor
+        if (editor && typeof editor.setValue === 'function') {
+            editor.setValue('');
+        }
+
+        // 2️⃣ Clear the output log
+        if (outputArea) outputArea.textContent = '';
+
+        // 3️⃣ Clear the drawing canvas
+        clearCanvas();
+
+        // 4️⃣ Feedback message
+        logToOutput('✨ Cleared editor, canvas, and output!');
+    } catch (error) {
+        logToOutput(`Error while clearing: ${error.message}`, 'error');
+    }
+});
+
 // --- NEW: Function to handle validation ---
 async function validateCode() {
     const code = editor.getValue();
@@ -248,4 +270,4 @@ window.addEventListener('click', (event) => {
     if (event.target === helpModal) {
         helpModal.classList.add('hidden');
     }
-}); 
+});

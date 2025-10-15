@@ -132,7 +132,9 @@ footer {
 }
 
 .panel-header > div {
-    display: flex;
+  display: flex;
+  align-items: center;
+  gap: 12px;
 }
 
 .modal {
@@ -207,3 +209,30 @@ footer {
 #help-docs th {
     background-color: #f2f2f2;
 } 
+/* 🧹 Clear Button – Consistent with Run and Help */
+#clearBtn {
+  background-color: #f8f9fa;
+  color: #e67e22;
+  border: 2px solid #e67e22;
+  border-radius: 8px;
+  padding: 0 20px;
+  height: 42px;
+  font-weight: 600;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  box-shadow: 0 3px 6px rgba(230, 126, 34, 0.25);
+}
+
+#clearBtn:hover {
+  background-color: #e67e22;
+  color: white;
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: 0 6px 12px rgba(230, 126, 34, 0.35);
+}
+
+#clearBtn:active {
+  background-color: #ca6f1e;
+  transform: translateY(0) scale(0.98);
+  box-shadow: 0 2px 4px rgba(230, 126, 34, 0.25);
+}
