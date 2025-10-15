@@ -1,7 +1,7 @@
 ---
 name: Bug report
 about: Create a report to help us improve KidCode
-title: '[BUG] '
+title: '[BUG]: '
 labels: 'bug'
 assignees: ''
 ---
@@ -38,7 +38,7 @@ If applicable, add screenshots to help explain your problem.
 - Browser (if using web interface): [e.g. Chrome 118, Firefox 119]
 
 **Error Messages**
-If there are any error messages, please paste them here:
+If there are any error messages, please paste them here (redact secrets and any PII):
 ```
 Error message here
 ```

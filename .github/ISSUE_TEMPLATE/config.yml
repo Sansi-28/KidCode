@@ -3,6 +3,12 @@ contact_links:
   - name: 💬 GitHub Discussions
     url: https://github.com/Sansi-28/KidCode/discussions
     about: Ask questions and discuss KidCode with the community
+  - name: 🤝 Contributing Guide
+    url: https://github.com/Sansi-28/KidCode/blob/main/CONTRIBUTING.md
+    about: Learn how to contribute, build, and test
+  - name: 🧭 Code of Conduct
+    url: https://github.com/Sansi-28/KidCode/blob/main/CODE_OF_CONDUCT.md
+    about: Understand expected behavior in our community
   - name: 📚 Documentation & Support
     url: https://github.com/Sansi-28/KidCode/blob/main/SUPPORT.md
     about: Get help and find resources for using KidCode

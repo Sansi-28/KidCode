@@ -31,7 +31,7 @@ Have an idea for improving KidCode? [Open an issue](https://github.com/Sansi-28/
 
 ### 📧 Direct Contact
 For private or security-related issues, you can:
-- Open a private security advisory on GitHub
+- Open a private security advisory on GitHub: https://github.com/Sansi-28/KidCode/security/advisories/new
 - Contact the maintainers through GitHub
 
 ## Response Times

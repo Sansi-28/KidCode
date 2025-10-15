@@ -6,9 +6,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
-
 ### Added
-- Initial release of KidCode Visual Interpreter
+- N/A
+
+## [1.0.0] - 2025-10-XX
+### Added
+- Initial stable release of KidCode programming language and interpreter
+- Complete documentation and contribution guidelines
 - Multi-module Maven project structure
 - Desktop GUI with Swing
 - Web interface with Spring Boot and Monaco editor
@@ -37,8 +41,5 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Implemented execution timeout to prevent infinite loops
 - Input validation for all user code execution
 
-## [1.0.0] - 2025-XX-XX
-
-### Added
-- Initial stable release of KidCode programming language and interpreter
-- Complete documentation and contribution guidelines
+[Unreleased]: https://github.com/Sansi-28/KidCode/compare/v1.0.0...HEAD
+[1.0.0]: https://github.com/Sansi-28/KidCode/releases/tag/v1.0.0

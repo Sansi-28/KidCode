@@ -1,7 +1,7 @@
 ---
 name: Feature request
 about: Suggest an idea for KidCode
-title: '[FEATURE] '
+title: '[FEATURE]: '
 labels: 'enhancement'
 assignees: ''
 ---
@@ -45,3 +45,7 @@ If you have ideas about how this could be implemented, feel free to share them (
 - [ ] I can help with testing
 - [ ] I can help with documentation
 - [ ] I can only provide feedback
+
+---
+By submitting this issue, you agree to follow our Code of Conduct:
+https://github.com/Sansi-28/KidCode/blob/main/CODE_OF_CONDUCT.md

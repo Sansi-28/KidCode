@@ -63,6 +63,15 @@ body:
       required: true
 
   - type: input
+    id: kidcode-version
+    attributes:
+      label: KidCode Version
+      description: What version of KidCode are you using?
+      placeholder: ex. 1.0.0, 1.1.0
+    validations:
+      required: true
+
+  - type: input
     id: java-version
     attributes:
       label: Java Version
@@ -87,7 +96,7 @@ body:
     id: error-messages
     attributes:
       label: Error Messages
-      description: Any error messages or stack traces?
+      description: Any error messages or stack traces? Please redact secrets and any PII.
       render: text
 
   - type: textarea
