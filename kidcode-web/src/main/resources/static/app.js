@@ -1,3 +1,51 @@
+// --- DARK MODE TOGGLE ---
+const darkModeToggle = document.getElementById('dark-mode-toggle');
+
+function setDarkMode(enabled) {
+    if (enabled) {
+        document.body.classList.add('dark-mode');
+        // Update Monaco editor theme if available
+        if (typeof monaco !== 'undefined' && editor) {
+            monaco.editor.setTheme('vs-dark');
+        }
+    } else {
+        document.body.classList.remove('dark-mode');
+        // Update Monaco editor theme if available
+        if (typeof monaco !== 'undefined' && editor) {
+            monaco.editor.setTheme('vs');
+        }
+    }
+}
+
+function updateToggleButton(isDarkMode) {
+    if (darkModeToggle) {
+        darkModeToggle.innerHTML = isDarkMode
+            ? '<span class="button-icon"><i class="fa-solid fa-sun"></i></span> Light Mode'
+            : '<span class="button-icon"><i class="fa-solid fa-moon"></i></span> Dark Mode';
+        darkModeToggle.setAttribute('aria-pressed', isDarkMode.toString());
+    }
+}
+
+// Load preference from localStorage with namespaced key
+const darkPref = localStorage.getItem('kidcode.darkMode');
+if (darkPref === 'true' || (darkPref === null && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+    setDarkMode(true);
+} else {
+    setDarkMode(false);
+}
+
+// Add event listener with null check
+if (darkModeToggle) {
+    darkModeToggle.addEventListener('click', () => {
+        const enabled = !document.body.classList.contains('dark-mode');
+        setDarkMode(enabled);
+        localStorage.setItem('kidcode.darkMode', enabled);
+        updateToggleButton(enabled);
+    });
+}
+
+// Set initial button text/icon
+updateToggleButton(document.body.classList.contains('dark-mode'));
 // File: kidcode-web/src/main/resources/static/app.js
 
 // --- 1. GET REFERENCES TO OUR HTML ELEMENTS ---
@@ -87,7 +135,7 @@ require(['vs/editor/editor.main'], function() {
         editor = monaco.editor.create(editorContainer, {
             value: savedCode !== null ? savedCode : defaultCode,
             language: 'kidcode',
-            theme: 'vs-light',
+            theme: document.body.classList.contains('dark-mode') ? 'vs-dark' : 'vs-light',
             automaticLayout: true,
             fontSize: 14,
             minimap: { enabled: false }
