@@ -1,0 +1,109 @@
+name: Feature Request
+description: Suggest a new feature for KidCode
+title: "[FEATURE]: "
+labels: ["enhancement", "triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for suggesting a new feature! 💡
+        
+        KidCode is designed to help children learn programming through visual turtle graphics.
+        Please keep this educational goal in mind when suggesting features.
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem Description
+      description: Is your feature request related to a problem? Please describe.
+      placeholder: I'm always frustrated when...
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposed-solution
+    attributes:
+      label: Proposed Solution
+      description: Describe the solution you'd like to see
+      placeholder: I would like to see...
+    validations:
+      required: true
+
+  - type: textarea
+    id: use-case
+    attributes:
+      label: Use Case
+      description: How would this feature be used?
+      placeholder: |
+        As a teacher, I want to...
+        As a student, I need to...
+        When creating turtle graphics...
+    validations:
+      required: true
+
+  - type: textarea
+    id: example
+    attributes:
+      label: Example Usage
+      description: If applicable, provide an example of how this feature might work
+      render: kidcode
+      placeholder: |
+        # Example of proposed feature
+        newCommand parameter1 parameter2
+
+  - type: checkboxes
+    id: educational-value
+    attributes:
+      label: Educational Value
+      description: How would this feature help students learn programming?
+      options:
+        - label: Teaches fundamental programming concepts
+        - label: Makes programming more accessible to children
+        - label: Provides visual feedback for learning
+        - label: Encourages creative expression
+        - label: Supports classroom teaching
+
+  - type: dropdown
+    id: target-audience
+    attributes:
+      label: Primary Target Audience
+      options:
+        - Elementary school students (ages 6-11)
+        - Middle school students (ages 12-14)
+        - Teachers and educators
+        - Parents teaching at home
+        - Developers integrating KidCode
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternative Solutions
+      description: Describe any alternative solutions or features you've considered
+
+  - type: checkboxes
+    id: contribution
+    attributes:
+      label: Contribution
+      description: Would you be willing to help implement this feature?
+      options:
+        - label: Yes, I'd like to work on this
+        - label: I can help with testing
+        - label: I can help with documentation
+        - label: I can provide feedback during development
+
+  - type: textarea
+    id: additional-context
+    attributes:
+      label: Additional Context
+      description: Add any other context, mockups, or screenshots about the feature request
+
+  - type: checkboxes
+    id: terms
+    attributes:
+      label: Code of Conduct
+      description: By submitting this issue, you agree to follow our [Code of Conduct](https://github.com/Sansi-28/KidCode/blob/main/CODE_OF_CONDUCT.md)
+      options:
+        - label: I agree to follow this project's Code of Conduct
+          required: true
