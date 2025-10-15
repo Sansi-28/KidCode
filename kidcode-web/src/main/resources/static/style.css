@@ -236,3 +236,19 @@ footer {
   transform: translateY(0) scale(0.98);
   box-shadow: 0 2px 4px rgba(230, 126, 34, 0.25);
 }
+.spinner {
+  border: 3px solid #f3f3f3;
+  border-top: 3px solid #2ecc71;
+  border-radius: 50%;
+  width: 14px;
+  height: 14px;
+  animation: spin 0.8s linear infinite;
+  display: inline-block;
+  margin-right: 8px;
+  vertical-align: middle;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}

@@ -108,11 +108,16 @@ require(['vs/editor/editor.main'], function() {
     validateCode();
 });
 
-// --- 2. ADD EVENT LISTENER TO THE RUN BUTTON ---
+/// --- 2. ADD EVENT LISTENER TO THE RUN BUTTON ---
 runButton.addEventListener('click', async () => {
+    const originalHTML = runButton.innerHTML;
+    runButton.disabled = true;
+    runButton.innerHTML = '<span class="spinner"></span> Running...';
+
     const code = editor.getValue();
     clearCanvas();
     outputArea.textContent = '';
+
     try {
         const response = await fetch('/api/execute', {
             method: 'POST',
@@ -126,6 +131,13 @@ runButton.addEventListener('click', async () => {
         renderEvents(events);
     } catch (error) {
         logToOutput(`Network or server error: ${error.message}`, 'error');
+    } finally {
+        // Show “Done!” visibly before restoring the button
+        runButton.innerHTML = '✅ Done!';
+        setTimeout(() => {
+            runButton.disabled = false;
+            runButton.innerHTML = originalHTML;
+        }, 1000);
     }
 });
 
