@@ -168,6 +168,12 @@ h3 {
   animation: fadeInUp 0.8s ease forwards;
 }
 
+#dark-mode-toggle {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+}
+
 .run-btn {
   background: linear-gradient(145deg, #27ae60 0%, #1e8449 100%);
   color: #fff;

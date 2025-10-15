@@ -4,35 +4,48 @@ const darkModeToggle = document.getElementById('dark-mode-toggle');
 function setDarkMode(enabled) {
     if (enabled) {
         document.body.classList.add('dark-mode');
+        // Update Monaco editor theme if available
+        if (typeof monaco !== 'undefined' && editor) {
+            monaco.editor.setTheme('vs-dark');
+        }
     } else {
         document.body.classList.remove('dark-mode');
+        // Update Monaco editor theme if available
+        if (typeof monaco !== 'undefined' && editor) {
+            monaco.editor.setTheme('vs');
+        }
     }
 }
 
-// Load preference from localStorage
-const darkPref = localStorage.getItem('darkMode');
+function updateToggleButton(isDarkMode) {
+    if (darkModeToggle) {
+        darkModeToggle.innerHTML = isDarkMode
+            ? '<span class="button-icon"><i class="fa-solid fa-sun"></i></span> Light Mode'
+            : '<span class="button-icon"><i class="fa-solid fa-moon"></i></span> Dark Mode';
+        darkModeToggle.setAttribute('aria-pressed', isDarkMode.toString());
+    }
+}
+
+// Load preference from localStorage with namespaced key
+const darkPref = localStorage.getItem('kidcode.darkMode');
 if (darkPref === 'true' || (darkPref === null && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
     setDarkMode(true);
 } else {
     setDarkMode(false);
 }
 
-darkModeToggle.addEventListener('click', () => {
-    const enabled = !document.body.classList.contains('dark-mode');
-    setDarkMode(enabled);
-    localStorage.setItem('darkMode', enabled);
-    // Optionally update icon/text
-    darkModeToggle.innerHTML = enabled
-        ? '<span class="button-icon"><i class="fa-solid fa-sun"></i></span> Light Mode'
-        : '<span class="button-icon"><i class="fa-solid fa-moon"></i></span> Dark Mode';
-});
+// Add event listener with null check
+if (darkModeToggle) {
+    darkModeToggle.addEventListener('click', () => {
+        const enabled = !document.body.classList.contains('dark-mode');
+        setDarkMode(enabled);
+        localStorage.setItem('kidcode.darkMode', enabled);
+        updateToggleButton(enabled);
+    });
+}
 
 // Set initial button text/icon
-if (document.body.classList.contains('dark-mode')) {
-    darkModeToggle.innerHTML = '<span class="button-icon"><i class="fa-solid fa-sun"></i></span> Light Mode';
-} else {
-    darkModeToggle.innerHTML = '<span class="button-icon"><i class="fa-solid fa-moon"></i></span> Dark Mode';
-}
+updateToggleButton(document.body.classList.contains('dark-mode'));
 // File: kidcode-web/src/main/resources/static/app.js
 
 // --- 1. GET REFERENCES TO OUR HTML ELEMENTS ---
@@ -113,7 +126,7 @@ require(['vs/editor/editor.main'], function() {
             'end repeat'
         ].join('\n'),
             language: 'kidcode',
-            theme: 'vs-light',
+            theme: document.body.classList.contains('dark-mode') ? 'vs-dark' : 'vs-light',
             automaticLayout: true,
             fontSize: 14,
             minimap: { enabled: false }
