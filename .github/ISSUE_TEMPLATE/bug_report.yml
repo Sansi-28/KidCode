@@ -1,0 +1,116 @@
+name: Bug Report
+description: File a bug report to help us improve KidCode
+title: "[BUG]: "
+labels: ["bug", "triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to fill out this bug report! 🐛
+
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened?
+      description: Describe the bug you encountered
+      placeholder: Tell us what went wrong!
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduction-steps
+    attributes:
+      label: Steps to Reproduce
+      description: How can we reproduce this issue?
+      placeholder: |
+        1. Open KidCode...
+        2. Enter this code...
+        3. Click run...
+        4. See error...
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected-behavior
+    attributes:
+      label: Expected Behavior
+      description: What did you expect to happen?
+      placeholder: I expected...
+    validations:
+      required: true
+
+  - type: textarea
+    id: kidcode-script
+    attributes:
+      label: KidCode Script
+      description: If applicable, paste the KidCode script that caused the issue
+      render: kidcode
+      placeholder: |
+        say "Hello World"
+        move 100
+        turn 90
+
+  - type: dropdown
+    id: interface
+    attributes:
+      label: Which interface were you using?
+      options:
+        - Desktop GUI (Swing)
+        - Web Interface
+        - Command Line (CLI)
+        - Not sure
+    validations:
+      required: true
+
+  - type: input
+    id: kidcode-version
+    attributes:
+      label: KidCode Version
+      description: What version of KidCode are you using?
+      placeholder: ex. 1.0.0, 1.1.0
+    validations:
+      required: true
+
+  - type: input
+    id: java-version
+    attributes:
+      label: Java Version
+      description: What version of Java are you running?
+      placeholder: ex. Java 17, Java 11
+
+  - type: input
+    id: os
+    attributes:
+      label: Operating System
+      description: What operating system are you using?
+      placeholder: ex. Windows 10, macOS 12, Ubuntu 20.04
+
+  - type: input
+    id: browser
+    attributes:
+      label: Browser (if using web interface)
+      description: What browser and version?
+      placeholder: ex. Chrome 118, Firefox 119, Safari 16
+
+  - type: textarea
+    id: error-messages
+    attributes:
+      label: Error Messages
+      description: Any error messages or stack traces? Please redact secrets and any PII.
+      render: text
+
+  - type: textarea
+    id: additional-context
+    attributes:
+      label: Additional Context
+      description: Add any other context about the problem here
+      placeholder: Screenshots, related issues, etc.
+
+  - type: checkboxes
+    id: terms
+    attributes:
+      label: Code of Conduct
+      description: By submitting this issue, you agree to follow our [Code of Conduct](https://github.com/Sansi-28/KidCode/blob/main/CODE_OF_CONDUCT.md)
+      options:
+        - label: I agree to follow this project's Code of Conduct
+          required: true
