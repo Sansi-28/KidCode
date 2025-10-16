@@ -1,18 +1,14 @@
 package com.kidcode.gui;
 
 import com.kidcode.core.KidCodeEngine;
-import com.kidcode.core.evaluator.Evaluator;
 import com.kidcode.core.event.ExecutionEvent;
 
 import javax.swing.*;
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Consumer;
 import org.fife.ui.rsyntaxtextarea.*;
 import org.fife.ui.rtextarea.RTextScrollPane;
-
-import java.io.File;
 
 public class KidCodeVisualInterpreter extends JFrame {
     private final DrawingPanel drawingPanel;
