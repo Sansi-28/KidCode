@@ -1,9 +1,6 @@
 package com.kidcode.core.evaluator;
 
 import com.kidcode.core.ast.*;
-import com.kidcode.core.event.ExecutionEvent;
-import java.util.List;
-import java.util.function.Supplier;
 import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.Test;
 
@@ -32,7 +29,7 @@ public class EvaluatorStringOpTest {
         Environment env = makeEnv();
         Expression expr = new InfixExpression(new StringLiteral("A"), "-", new StringLiteral("B"));
         Object res = ev.evaluateExpression(expr, env);
-        assertTrue(res instanceof String);
+        assertInstanceOf(String.class, res);
         assertTrue(((String) res).startsWith("Error:"));
     }
 
@@ -42,7 +39,7 @@ public class EvaluatorStringOpTest {
         Environment env = makeEnv();
         Expression expr = new InfixExpression(new StringLiteral("Hello"), "*", new IntegerLiteral(2));
         Object res = ev.evaluateExpression(expr, env);
-        assertTrue(res instanceof String);
+        assertInstanceOf(String.class, res);
         assertTrue(((String) res).startsWith("Error:"));
     }
 }

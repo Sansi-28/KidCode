@@ -1,18 +1,14 @@
 package com.kidcode.gui;
 
 import com.kidcode.core.KidCodeEngine;
-import com.kidcode.core.evaluator.Evaluator;
 import com.kidcode.core.event.ExecutionEvent;
 
 import javax.swing.*;
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Consumer;
 import org.fife.ui.rsyntaxtextarea.*;
 import org.fife.ui.rtextarea.RTextScrollPane;
-
-import java.io.File;
 
 public class KidCodeVisualInterpreter extends JFrame {
     private final DrawingPanel drawingPanel;
@@ -171,10 +167,8 @@ public class KidCodeVisualInterpreter extends JFrame {
         }
     }
     
-    // --- Inner classes from your original file ---
     static class DrawingPanel extends JPanel {
         private final List<Line> lines = new ArrayList<>();
-        // Add state for Cody's visual representation
         private int codyX = 250;
         private int codyY = 250;
         private double codyDirection = 0; // In degrees
@@ -186,19 +180,21 @@ public class KidCodeVisualInterpreter extends JFrame {
 
         public void drawLine(int x1, int y1, int x2, int y2, Color color) {
             lines.add(new Line(x1, y1, x2, y2, color));
-            // We don't need to call repaint() here, updateCodyState will do it.
         }
 
         public void updateCodyState(int x, int y, double direction) {
             this.codyX = x;
             this.codyY = y;
             this.codyDirection = direction;
-            repaint(); // Trigger a repaint to show Cody's new position/rotation
+            repaint();
         }
 
         public void clear() {
             lines.clear();
-            // Reset Cody to the initial state when clearing
+            resetCody();
+        }
+
+        public void resetCody() {
             this.codyX = 250;
             this.codyY = 250;
             this.codyDirection = 0;
@@ -209,41 +205,34 @@ public class KidCodeVisualInterpreter extends JFrame {
         protected void paintComponent(Graphics g) {
             super.paintComponent(g);
             Graphics2D g2d = (Graphics2D) g;
+            drawLines(g2d);
+            drawCody(g2d);
+        }
 
-            // 1. Draw all the lines from previous moves
+        private void drawLines(Graphics2D g2d) {
             for (Line line : lines) {
                 g2d.setColor(line.color);
                 g2d.setStroke(new BasicStroke(2));
                 g2d.drawLine(line.x1, line.y1, line.x2, line.y2);
             }
-
-            // 2. Draw Cody
-            drawCody(g2d);
         }
 
         private void drawCody(Graphics2D g2d) {
             Graphics2D g2dCopy = (Graphics2D) g2d.create();
-
-            // Move and rotate the canvas to the pointer's position and direction.
             g2dCopy.translate(codyX, codyY);
             g2dCopy.rotate(Math.toRadians(codyDirection));
 
-            // --- Define the Classic Pointer shape using a Polygon ---
             Polygon pointerShape = new Polygon();
             pointerShape.addPoint(0, -18);   // The very tip (hotspot)
             pointerShape.addPoint(10, 7);    // The bottom-right corner
             pointerShape.addPoint(0, 0);     // The indented base center
             pointerShape.addPoint(-4, 7);    // The bottom-left corner (closer to center for asymmetry)
 
-            // Fill the shape with a dynamic color (for now, keep orange as before)
-            g2dCopy.setColor(new Color(255, 100, 0)); // You can replace with this.codyColor if you add color support
+            g2dCopy.setColor(new Color(255, 100, 0));
             g2dCopy.fill(pointerShape);
-
-            // Draw a crisp black outline
             g2dCopy.setColor(Color.BLACK);
             g2dCopy.setStroke(new BasicStroke(1.5f));
             g2dCopy.draw(pointerShape);
-
             g2dCopy.dispose();
         }
 

@@ -9,7 +9,6 @@ public class Parser {
     private int position = 0;
     private final List<String> errors = new ArrayList<>();
 
-    // Precedence enum and map remain the same
     private enum Precedence {
         LOWEST, EQUALS, LESSGREATER, SUM, PRODUCT, PREFIX, INDEX
     }
@@ -46,7 +45,6 @@ public class Parser {
         position++;
     }
 
-    // MODIFIED: The main program loop NO LONGER calls nextToken().
     public List<Statement> parseProgram() {
         List<Statement> statements = new ArrayList<>();
         while (currentToken().type() != TokenType.EOF) {
@@ -58,12 +56,7 @@ public class Parser {
         return statements;
     }
 
-    // NEW: A helper to advance the token only if it's not EOF.
-    // This simplifies the end of all parse...Statement methods.
     private void advanceToNextStatement() {
-        // Most statements are one per line. We advance until we find the next meaningful token.
-        // This is not strictly necessary for this parser, but is good practice.
-        // For our current grammar, a simple nextToken() is sufficient.
         nextToken();
     }
 
@@ -80,8 +73,6 @@ public class Parser {
             case DEFINE: return parseFunctionDefinitionStatement();
             case IDENTIFIER: return parseFunctionCallStatement();
             default:
-                // If we don't recognize the token as the start of a statement,
-                // we must advance past it to avoid an infinite loop.
                 errors.add("Error line " + currentToken().lineNumber() + ": Invalid start of a statement: '" + currentToken().literal() + "'");
                 advanceToNextStatement();
                 return null;
@@ -89,28 +80,26 @@ public class Parser {
     }
 
     private MoveStatement parseMoveStatement() {
-        // ... (parsing logic is the same)
         nextToken(); // Consume 'forward'
         nextToken(); // Move to the expression
         Expression steps = parseExpression(Precedence.LOWEST);
-        advanceToNextStatement(); // MODIFIED: Advance token stream
+        advanceToNextStatement();
         return new MoveStatement(steps);
     }
 
     private TurnStatement parseTurnStatement() {
-        // ... (parsing logic is the same)
         nextToken(); // Consume 'left' or 'right'
         String direction = currentToken().literal();
         nextToken(); // Move to the expression
         Expression degrees = parseExpression(Precedence.LOWEST);
-        advanceToNextStatement(); // MODIFIED: Advance token stream
+        advanceToNextStatement();
         return new TurnStatement(direction, degrees);
     }
 
     private SayStatement parseSayStatement() {
         nextToken(); // Consume 'say', move to string
         Expression message = parseExpression(Precedence.LOWEST);
-        advanceToNextStatement(); // MODIFIED: Advance token stream
+        advanceToNextStatement();
         return new SayStatement(message);
     }
 
@@ -124,25 +113,25 @@ public class Parser {
         }
         nextToken(); // Consume '=', move to expression
         Expression value = parseExpression(Precedence.LOWEST);
-        advanceToNextStatement(); // MODIFIED: Advance token stream
+        advanceToNextStatement();
         return new SetStatement(name, value);
     }
 
     private PenStatement parsePenStatement() {
-        nextToken(); // Consume 'pen'
+        nextToken();
         if (currentToken().type() != TokenType.UP && currentToken().type() != TokenType.DOWN) {
             errors.add("Error line " + currentToken().lineNumber() + ": Expected 'up' or 'down' after 'pen'");
             return null;
         }
         String state = currentToken().literal();
-        advanceToNextStatement(); // MODIFIED: Advance token stream
+        advanceToNextStatement();
         return new PenStatement(state);
     }
 
     private SetColorStatement parseSetColorStatement() {
-        nextToken(); // Consume 'color'
+        nextToken();
         Expression colorName = parseExpression(Precedence.LOWEST);
-        advanceToNextStatement(); // MODIFIED: Advance token stream
+        advanceToNextStatement();
         return new SetColorStatement(colorName);
     }
     
@@ -155,11 +144,10 @@ public class Parser {
             nextToken();
             arguments.add(parseExpression(Precedence.LOWEST));
         }
-        advanceToNextStatement(); // MODIFIED: Advance token stream
+        advanceToNextStatement();
         return new FunctionCallStatement(function, arguments);
     }
 
-    // NEW: Helper to check if a token can be the start of an argument.
     private boolean isArgument(TokenType type) {
         return type == TokenType.NUMBER || type == TokenType.IDENTIFIER ||
                type == TokenType.STRING || type == TokenType.LPAREN || type == TokenType.LBRACKET;
@@ -181,7 +169,7 @@ public class Parser {
         if (peekToken().type() == TokenType.DEFINE) {
             nextToken(); // consume 'define' from 'end define'
         }
-        advanceToNextStatement(); // MODIFIED: Advance token stream
+        advanceToNextStatement();
         return new FunctionDefinitionStatement(name, parameters, body);
     }
 
@@ -194,12 +182,12 @@ public class Parser {
         if (peekToken().type() == TokenType.REPEAT) {
             nextToken(); // consume 'repeat' from 'end repeat'
         }
-        advanceToNextStatement(); // MODIFIED: Advance token stream
+        advanceToNextStatement();
         return new RepeatStatement(times, body);
     }
 
     private IfStatement parseIfStatement() {
-        nextToken(); // Consume 'if'
+        nextToken();
         Expression condition = parseExpression(Precedence.LOWEST);
         List<Statement> consequence = parseBlock();
         List<Statement> alternative = null;
@@ -217,7 +205,6 @@ public class Parser {
         return new IfStatement(condition, consequence, alternative);
     }
 
-    // MODIFIED: The block parsing loop NO LONGER calls nextToken().
     private List<Statement> parseBlock() {
         List<Statement> block = new ArrayList<>();
         nextToken(); // Consume the keyword that started the block (or 'else')
