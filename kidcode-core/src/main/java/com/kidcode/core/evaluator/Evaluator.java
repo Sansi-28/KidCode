@@ -2,18 +2,28 @@ package com.kidcode.core.evaluator;
 
 import com.kidcode.core.ast.*;
 import com.kidcode.core.event.ExecutionEvent;
+import com.kidcode.core.evaluator.ExecutionContext;
+
 import java.util.List;
 import java.util.ArrayList;
+import java.util.Set;
 import java.util.function.Supplier;
 
 public class Evaluator {
     private static final int INSTRUCTION_LIMIT = 1_000_000;
     private int instructionCount = 0;
+
     private final Supplier<Boolean> stopSignal;
     private final List<ExecutionEvent> events = new ArrayList<>();
 
-    public Evaluator(Supplier<Boolean> stopSignal) {
+    // Debugger fields
+    private final ExecutionContext executionContext;
+    private final Set<Integer> breakpoints;
+
+    public Evaluator(Supplier<Boolean> stopSignal, ExecutionContext context, Set<Integer> breakpoints) {
         this.stopSignal = stopSignal;
+        this.executionContext = context;
+        this.breakpoints = breakpoints;
     }
 
     public List<ExecutionEvent> evaluate(List<Statement> program, Environment env) {
@@ -21,8 +31,9 @@ public class Evaluator {
         events.clear();
         events.add(new ExecutionEvent.ClearEvent());
         events.add(new ExecutionEvent.MoveEvent(
-            env.getX(), env.getY(), env.getX(), env.getY(),
-            env.getDirection(), env.isPenDown(), env.getPenColor()));
+                env.getX(), env.getY(), env.getX(), env.getY(),
+                env.getDirection(), env.isPenDown(), env.getPenColor()));
+
         for (Statement statement : program) {
             if (stopSignal.get()) break;
             evaluateStatement(statement, env);
@@ -31,12 +42,29 @@ public class Evaluator {
     }
 
     private void evaluateStatement(Statement stmt, Environment env) {
+        int lineNumber = -1;
+
+        // Unwrap line number from LocatedStatement if possible
+        if (stmt instanceof LocatedStatement locatedStmt) {
+            lineNumber = locatedStmt.getLineNumber();
+            stmt = locatedStmt.getInner();
+        }
+
+        // Pause if breakpoint
+        if (lineNumber != -1 && breakpoints.contains(lineNumber)) {
+            executionContext.pause();
+        }
+
+        // Wait if paused
+        executionContext.waitIfPaused();
+
         if (stopSignal.get() || ++instructionCount > INSTRUCTION_LIMIT) {
-            if(instructionCount > INSTRUCTION_LIMIT) {
+            if (instructionCount > INSTRUCTION_LIMIT) {
                 events.add(new ExecutionEvent.ErrorEvent("Execution timed out! Possible infinite loop."));
             }
             return;
         }
+
         if (stmt instanceof SetStatement setStmt) {
             Object value = evaluateExpression(setStmt.value(), env);
             if (isError(value)) {
@@ -86,7 +114,7 @@ public class Evaluator {
         } else if (stmt instanceof SayStatement sayStmt) {
             Object messageObj = evaluateExpression(sayStmt.message(), env);
             if (isError(messageObj)) {
-                events.add(new ExecutionEvent.ErrorEvent((String) messageObj));  // Use ErrorEvent for consistency
+                events.add(new ExecutionEvent.ErrorEvent((String) messageObj));
             } else {
                 events.add(new ExecutionEvent.SayEvent(String.valueOf(messageObj)));
             }
@@ -125,6 +153,11 @@ public class Evaluator {
         } else if (stmt instanceof ExpressionStatement exprStmt) {
             evaluateExpression(exprStmt.expression(), env);
         }
+
+        // Pause after one statement if in stepping mode
+        if (executionContext.isStepping()) {
+            executionContext.pause();
+        }
     }
 
     /**
@@ -153,9 +186,7 @@ public class Evaluator {
         }
         if (expr instanceof Identifier id) {
             Object value = env.get(id.value());
-            if (value == null) {
-                return "Error: variable '" + id.value() + "' not found.";
-            }
+            if (value == null) return "Error: variable '" + id.value() + "' not found.";
             return value;
         }
         if (expr instanceof InfixExpression infix) {
@@ -200,22 +231,16 @@ public class Evaluator {
             if (isError(left)) return left;
             Object index = evaluateExpression(indexExpr.index(), env);
             if (isError(index)) return index;
-            if (!(left instanceof List)) {
-                return "Error: index operator [] cannot be used on non-list type.";
-            }
-            if (!(index instanceof Integer)) {
-                return "Error: index must be a number.";
-            }
+            if (!(left instanceof List)) return "Error: index operator [] cannot be used on non-list type.";
+            if (!(index instanceof Integer)) return "Error: index must be a number.";
             List<Object> list = (List<Object>) left;
             int idx = (Integer) index;
-            if (idx < 0 || idx >= list.size()) {
-                return "Error: index " + idx + " out of bounds for list of size " + list.size() + ".";
-            }
+            if (idx < 0 || idx >= list.size()) return "Error: index " + idx + " out of bounds for list of size " + list.size() + ".";
             return list.get(idx);
         }
         return "Error: Cannot evaluate expression";
     }
-    
+
     private boolean isError(Object obj) {
         return obj instanceof String s && s.startsWith("Error:");
     }
