@@ -98,16 +98,29 @@ public class KidCodeVisualInterpreter extends JFrame {
         setJMenuBar(menuBar);
     }
 
+    /**
+     * Converts a KidCode color name to a Java AWT Color object.
+     * 
+     * @param colorName the color name (case-insensitive)
+     * @return the corresponding AWT Color, defaults to BLACK for unknown colors
+     */
     private Color parseAwtColor(String colorName) {
+        if (colorName == null) {
+            return Color.BLACK;
+        }
         return switch (colorName.toLowerCase()) {
             case "red" -> Color.RED;
             case "green" -> Color.GREEN;
             case "blue" -> Color.BLUE;
             case "yellow" -> Color.YELLOW;
             case "orange" -> Color.ORANGE;
-            case "purple" -> new Color(128, 0, 128);
+            case "purple" -> new Color(128, 0, 128); // Purple color
             case "black" -> Color.BLACK;
             case "white" -> Color.WHITE;
+            case "cyan" -> Color.CYAN;
+            case "magenta" -> Color.MAGENTA;
+            case "pink" -> Color.PINK;
+            case "brown" -> new Color(139, 69, 19); // Saddle brown color
             default -> Color.BLACK;
         };
     }

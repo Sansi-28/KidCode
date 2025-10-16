@@ -127,9 +127,19 @@ public class Evaluator {
         }
     }
 
+    /**
+     * Checks if the given color name is supported by KidCode.
+     * 
+     * @param colorName the color name to check (case-insensitive)
+     * @return true if the color is supported, false otherwise
+     */
     private boolean isSupportedColor(String colorName) {
+        if (colorName == null) {
+            return false;
+        }
         return switch (colorName.toLowerCase()) {
-            case "red", "green", "blue", "yellow", "orange", "purple", "black", "white" -> true;
+            case "red", "green", "blue", "yellow", "orange", "purple", "black", "white",
+                 "cyan", "magenta", "pink", "brown" -> true;
             default -> false;
         };
     }
