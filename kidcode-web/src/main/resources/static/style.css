@@ -302,16 +302,44 @@ footer {
 }
 
 #output-area {
-  background-color: #ecf0f1;
-  min-height: 100px;
-  padding: 15px;
-  margin: 0;
-  white-space: pre-wrap;
-  word-wrap: break-word;
-  font-family: "Courier New", Courier, monospace;
-  font-size: 13px;
-  border-bottom-left-radius: 8px;
-  border-bottom-right-radius: 8px;
+    background-color: #ecf0f1;
+    min-height: 100px;
+    padding: 15px;
+    margin: 0;
+    white-space: pre-wrap; /* Wrap long lines */
+    word-wrap: break-word;
+    font-family: "Courier New", Courier, monospace;
+    font-size: 13px;
+    border-bottom-left-radius: 8px;
+    border-bottom-right-radius: 8px;
+}
+
+#help-button {
+    height: 38px;
+    padding: 0 15px;
+    border-radius: 5px;
+    background-color: transparent;
+    border: 2px solid #3498db;
+    color: #3498db;
+    font-size: 0.9rem;
+    font-weight: bold;
+    text-align: center;
+    margin-right: 10px;
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+}
+
+#help-button:hover {
+    background-color: #3498db;
+    color: white;
+    transform: scale(1.05);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+}
+
+.panel-header > div {
+  display: flex;
+  align-items: center;
+  gap: 12px;
 }
 
 /* 🪟 Help Modal Styling */
@@ -393,6 +421,49 @@ footer {
 #help-docs th {
     background-color: #f2f2f2;
 } 
+/* 🧹 Clear Button – Consistent with Run and Help */
+#clearBtn {
+  background-color: #f8f9fa;
+  color: #e67e22;
+  border: 2px solid #e67e22;
+  border-radius: 8px;
+  padding: 0 20px;
+  height: 42px;
+  font-weight: 600;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  box-shadow: 0 3px 6px rgba(230, 126, 34, 0.25);
+}
+
+#clearBtn:hover {
+  background-color: #e67e22;
+  color: white;
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: 0 6px 12px rgba(230, 126, 34, 0.35);
+}
+
+#clearBtn:active {
+  background-color: #ca6f1e;
+  transform: translateY(0) scale(0.98);
+  box-shadow: 0 2px 4px rgba(230, 126, 34, 0.25);
+}
+.spinner {
+  border: 3px solid #f3f3f3;
+  border-top: 3px solid #2ecc71;
+  border-radius: 50%;
+  width: 14px;
+  height: 14px;
+  animation: spin 0.8s linear infinite;
+  display: inline-block;
+  margin-right: 8px;
+  vertical-align: middle;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
 
 
 

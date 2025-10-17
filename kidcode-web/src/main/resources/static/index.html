@@ -21,36 +21,42 @@
     </header>
 
     <main class="container">
+        <div class="editor-panel">
+            <div class="panel-header">
+                <h3>Code Editor</h3>
+                <div>
+                    <button id="help-button">Help</button>
+                    <button id="run-button">▶ Run</button>
+                    <button id="clearBtn">Clear</button>
+                </div>
       <div class="editor-panel">
-        <div class="panel-header">
-          <div class="panel-left">
-            <h3>Code Editor</h3>
-            <div class="example-selector-wrapper">
-              <select id="exampleSelector" aria-label="Choose Example">
-                <option value="">Select an Example</option>
-              </select>
-            </div>
-          </div>
-
-          <div class="panel-controls">
-            <button id="help-button" class="animated-btn help-btn">
-              <span class="button-icon"
-                ><i class="fa-solid fa-circle-info"></i
-              ></span>
-              Help
-            </button>
-
-            <button id="run-button" class="animated-btn run-btn">
-              <span class="button-icon"><i class="fa-solid fa-play"></i></span>
-              Run
-            </button>
+      <div class="panel-header">
+        <div class="panel-left">
+          <h3>Code Editor</h3>
+          <div class="example-selector-wrapper">
+            <select id="exampleSelector" aria-label="Choose Example">
+              <option value="">Select an Example</option>
+            </select>
           </div>
         </div>
 
-        <div
-          id="editor-container"
-          style="flex-grow: 1; border: 1px solid #e0e0e0"
-        ></div>
+        <div class="panel-controls">
+          <button id="help-button" class="animated-btn help-btn">
+            <span class="button-icon"><i class="fa-solid fa-circle-info"></i></span>
+            Help
+          </button>
+
+          <button id="run-button" class="animated-btn run-btn">
+            <span class="button-icon"><i class="fa-solid fa-play"></i></span>
+            Run
+          </button>
+
+          <!-- Your Clear button preserved -->
+          <button id="clearBtn" class="animated-btn help-btn">
+            <span class="button-icon"><i class="fa-solid fa-eraser"></i></span>
+            Clear
+          </button>
+        </div>
       </div>
 
       <div class="visual-panel">

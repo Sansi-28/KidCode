@@ -2,6 +2,7 @@
 
 // --- 1. GET REFERENCES TO OUR HTML ELEMENTS ---
 const runButton = document.getElementById("run-button");
+const clearButton = document.getElementById("clearBtn");
 const editorContainer = document.getElementById("editor-container");
 const drawingCanvas = document.getElementById("drawing-canvas");
 const outputArea = document.getElementById("output-area");
@@ -24,22 +25,8 @@ function registerKidCodeLanguage() {
 
   monaco.languages.setMonarchTokensProvider("kidcode", {
     keywords: [
-      "move",
-      "forward",
-      "turn",
-      "left",
-      "right",
-      "say",
-      "repeat",
-      "end",
-      "set",
-      "if",
-      "else",
-      "define",
-      "pen",
-      "up",
-      "down",
-      "color",
+      "move", "forward", "turn", "left", "right", "say", "repeat",
+      "end", "set", "if", "else", "define", "pen", "up", "down", "color",
     ],
     tokenizer: {
       root: [
@@ -112,10 +99,10 @@ require(["vs/editor/editor.main"], function () {
     minimap: { enabled: false },
   });
 
-  // ✅ Safely initialize examples dropdown (non-blocking)
+  // ✅ Initialize example dropdown
   initializeExamples();
 
-  // Add an editor action / keybinding so Ctrl/Cmd+Enter triggers the Run button
+  // Add an editor action / keybinding for Ctrl/Cmd+Enter to run code
   editor.addAction({
     id: "kidcode.run",
     label: "Run KidCode (Ctrl/Cmd+Enter)",
@@ -126,20 +113,16 @@ require(["vs/editor/editor.main"], function () {
     },
   });
 
-  // Monaco live validation and auto-saving
+  // Auto-save and validate
   editor.onDidChangeModelContent(() => {
-    // Save the current code to local storage
     localStorage.setItem(KIDCODE_STORAGE_KEY, editor.getValue());
-
-    // Debounce validation
     clearTimeout(validationTimeout);
     validationTimeout = setTimeout(validateCode, 500);
   });
-  // Validate on initial load
   validateCode();
 });
 
-// --- Initialize example dropdown (gracefully degrades if examples.js missing) ---
+// --- Initialize example dropdown ---
 function initializeExamples() {
   const selector = document.getElementById("exampleSelector");
   if (!selector) {
@@ -170,12 +153,13 @@ function initializeExamples() {
   });
 }
 
-// --- 2. ADD EVENT LISTENER TO THE RUN BUTTON ---
-// --- 1️⃣ Event listener for Run button ---
+// --- 🏃 Enhanced Run Button with Loading State ---
 runButton.addEventListener("click", async () => {
-  const code = editor.getValue();
+  const originalHTML = runButton.innerHTML;
+  runButton.disabled = true;
+  runButton.innerHTML = '<span class="spinner"></span> Running...';
 
-  // ✅ Always start with a fresh canvas before execution
+  const code = editor.getValue();
   clearCanvas();
   outputArea.textContent = "";
 
@@ -185,19 +169,33 @@ runButton.addEventListener("click", async () => {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ code }),
     });
-
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
-
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const events = await response.json();
     renderEvents(events);
   } catch (error) {
     logToOutput(`Network or server error: ${error.message}`, "error");
+  } finally {
+    runButton.innerHTML = "✅ Done!";
+    setTimeout(() => {
+      runButton.disabled = false;
+      runButton.innerHTML = originalHTML;
+    }, 1000);
   }
 });
 
-// --- NEW: Event listener for Download button ---
+// --- 🧹 Clear Button Logic ---
+clearButton.addEventListener("click", () => {
+  try {
+    if (editor && typeof editor.setValue === "function") editor.setValue("");
+    if (outputArea) outputArea.textContent = "";
+    clearCanvas();
+    logToOutput("✨ Cleared editor, canvas, and output!");
+  } catch (error) {
+    logToOutput(`Error while clearing: ${error.message}`, "error");
+  }
+});
+
+// --- 💾 Download Button ---
 if (downloadButton) {
   downloadButton.addEventListener("click", () => {
     try {
@@ -213,14 +211,14 @@ if (downloadButton) {
   });
 }
 
-// --- NEW: Function to handle validation ---
+// --- 🧠 Validation ---
 async function validateCode() {
   const code = editor.getValue();
   try {
     const response = await fetch("/api/validate", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ code: code }),
+      body: JSON.stringify({ code }),
     });
     const errors = await response.json();
     const markers = errors.map((err) => ({
@@ -245,16 +243,15 @@ function clearCanvas() {
   ctx.lineWidth = 2;
 }
 
-// Draw the classic pointer at (x, y) with direction (degrees) and color
 function drawCody(x, y, direction, color) {
   ctx.save();
   ctx.translate(x, y);
   ctx.rotate((direction * Math.PI) / 180);
   ctx.beginPath();
-  ctx.moveTo(0, -18); // Tip
-  ctx.lineTo(10, 7); // Bottom right
-  ctx.lineTo(0, 0); // Indented base center
-  ctx.lineTo(-4, 7); // Bottom left
+  ctx.moveTo(0, -18);
+  ctx.lineTo(10, 7);
+  ctx.lineTo(0, 0);
+  ctx.lineTo(-4, 7);
   ctx.closePath();
   ctx.fillStyle = color;
   ctx.fill();
@@ -274,13 +271,12 @@ function logToOutput(message, type = "info") {
   outputArea.appendChild(line);
 }
 
-// Store lines and Cody state for redraw
+// --- Draw + Render Events ---
 let drawnLines = [];
 let codyState = { x: 250, y: 250, direction: 0, color: "blue" };
 
 function renderEvents(events) {
   if (!events || events.length === 0) return;
-
   for (const event of events) {
     switch (event.type) {
       case "ClearEvent":
@@ -288,10 +284,7 @@ function renderEvents(events) {
         codyState = { x: 250, y: 250, direction: 0, color: "blue" };
         break;
       case "MoveEvent":
-        if (
-          event.isPenDown &&
-          (event.fromX !== event.toX || event.fromY !== event.toY)
-        ) {
+        if (event.isPenDown && (event.fromX !== event.toX || event.fromY !== event.toY)) {
           drawnLines.push({
             fromX: event.fromX,
             fromY: event.fromY,
@@ -331,14 +324,13 @@ function redrawCanvas() {
   drawCody(codyState.x, codyState.y, codyState.direction, codyState.color);
 }
 
+// --- Help Modal ---
 helpButton.addEventListener("click", () => {
   helpModal.classList.remove("hidden");
 });
-
 closeButton.addEventListener("click", () => {
   helpModal.classList.add("hidden");
 });
-
 window.addEventListener("click", (event) => {
   if (event.target === helpModal) {
     helpModal.classList.add("hidden");
