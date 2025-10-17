@@ -1,7 +1,9 @@
 package com.kidcode.core.evaluator;
 
 import com.kidcode.core.ast.*;
+import com.kidcode.core.builtins.Builtins;
 import com.kidcode.core.event.ExecutionEvent;
+
 import java.util.List;
 import java.util.ArrayList;
 import java.util.function.Supplier;
@@ -28,6 +30,10 @@ public class Evaluator {
             evaluateStatement(statement, env);
         }
         return events;
+    }
+
+    public List<ExecutionEvent> getEvents() {
+        return List.copyOf(events);
     }
 
     private void evaluateStatement(Statement stmt, Environment env) {
@@ -151,6 +157,13 @@ public class Evaluator {
         if (expr instanceof StringLiteral s) {
             return s.value();
         }
+        if (expr instanceof FunctionCallExpression funcCall) {
+            if (Builtins.isBuiltin(funcCall.function().value())) {
+                return applyBuiltinFunction(funcCall, env);
+            }
+            // User-defined functions that return values are not yet supported
+            return "Error: function '" + funcCall.function().value() + "' is not defined.";
+        }
         if (expr instanceof Identifier id) {
             Object value = env.get(id.value());
             if (value == null) {
@@ -218,6 +231,21 @@ public class Evaluator {
     
     private boolean isError(Object obj) {
         return obj instanceof String s && s.startsWith("Error:");
+    }
+
+    private Object applyBuiltinFunction(FunctionCallExpression call, Environment env) {
+        String funcName = call.function().value();
+
+        List<Object> args = new ArrayList<>();
+        for (Expression argExpr : call.arguments()) {
+            Object evaluated = evaluateExpression(argExpr, env);
+            if (isError(evaluated)) {
+                return evaluated; // Propagate error
+            }
+            args.add(evaluated);
+        }
+
+        return Builtins.apply(funcName, args);
     }
 
     private void evaluateFunctionCall(FunctionCallStatement call, Environment env) {
