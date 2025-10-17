@@ -10,13 +10,48 @@ const helpButton = document.getElementById("help-button");
 const helpModal = document.getElementById("help-modal");
 const closeButton = document.querySelector(".close-button");
 const downloadButton = document.getElementById("download-btn");
+const themeToggle = document.getElementById("theme-toggle");
 
 // --- Key for browser's local storage ---
 const KIDCODE_STORAGE_KEY = "kidcode.savedCode";
+const THEME_STORAGE_KEY = "kidcode.theme";
 
 // --- MONACO: Global variable to hold the editor instance ---
 let editor;
 let validationTimeout;
+
+// --- DARK MODE: Initialize theme on page load ---
+function initializeTheme() {
+  const savedTheme = localStorage.getItem(THEME_STORAGE_KEY);
+  const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+  const isDarkMode = savedTheme === 'dark' || (!savedTheme && prefersDark);
+  
+  if (isDarkMode) {
+    document.body.classList.add('dark-mode');
+    updateThemeIcon(true);
+  }
+}
+
+// --- DARK MODE: Toggle theme ---
+function toggleTheme() {
+  const isDarkMode = document.body.classList.toggle('dark-mode');
+  localStorage.setItem(THEME_STORAGE_KEY, isDarkMode ? 'dark' : 'light');
+  updateThemeIcon(isDarkMode);
+  
+  // Update Monaco editor theme
+  if (editor) {
+    monaco.editor.setTheme(isDarkMode ? 'vs-dark' : 'vs-light');
+  }
+}
+
+// --- DARK MODE: Update icon ---
+function updateThemeIcon(isDarkMode) {
+  const icon = themeToggle.querySelector('i');
+  icon.className = isDarkMode ? 'fa-solid fa-sun' : 'fa-solid fa-moon';
+}
+
+// Initialize theme before anything else
+initializeTheme();
 
 // --- MONACO: Function to define and register our custom language ---
 function registerKidCodeLanguage() {
@@ -106,7 +141,7 @@ require(["vs/editor/editor.main"], function () {
   editor = monaco.editor.create(editorContainer, {
     value: savedCode !== null ? savedCode : defaultCode,
     language: "kidcode",
-    theme: "vs-light",
+    theme: document.body.classList.contains('dark-mode') ? 'vs-dark' : 'vs-light',
     automaticLayout: true,
     fontSize: 14,
     minimap: { enabled: false },
@@ -342,5 +377,31 @@ closeButton.addEventListener("click", () => {
 window.addEventListener("click", (event) => {
   if (event.target === helpModal) {
     helpModal.classList.add("hidden");
+  }
+});
+
+// --- DARK MODE: Event listener for theme toggle ---
+if (themeToggle) {
+  themeToggle.addEventListener("click", toggleTheme);
+}
+
+// --- DARK MODE: Listen to system theme changes ---
+window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
+  const savedTheme = localStorage.getItem(THEME_STORAGE_KEY);
+  // Only auto-switch if user hasn't set a preference
+  if (!savedTheme) {
+    if (e.matches) {
+      document.body.classList.add('dark-mode');
+      updateThemeIcon(true);
+      if (editor) {
+        monaco.editor.setTheme('vs-dark');
+      }
+    } else {
+      document.body.classList.remove('dark-mode');
+      updateThemeIcon(false);
+      if (editor) {
+        monaco.editor.setTheme('vs-light');
+      }
+    }
   }
 });
