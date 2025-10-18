@@ -17,18 +17,18 @@ public class BackpackWords {
         return backpack;
     }
 
-    // Returns the first treasure
+    // Returns the first treasure; returns null if backpack is empty or null
     public static String front(List<String> backpack) {
         if (backpack == null || backpack.isEmpty()) {
-            throw new IllegalStateException("Cannot get front of empty backpack");
+            return null;
         }
         return backpack.get(0);
     }
 
-    // Returns the last treasure
+    // Returns the last treasure; returns null if backpack is empty or null
     public static String back(List<String> backpack) {
         if (backpack == null || backpack.isEmpty()) {
-            throw new IllegalStateException("Cannot get back of empty backpack");
+            return null;
         }
         return backpack.get(backpack.size() - 1);
     }
