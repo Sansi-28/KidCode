@@ -11,7 +11,7 @@ public class DebuggerController {
     public DebuggerController(ExecutionContext context) {
         this.context = context;
     }
-    @PostMapping("/pause")
+@PostMapping("/pause")
     public String pause() {
         context.pause();
         return "Paused";
@@ -34,4 +34,4 @@ public class DebuggerController {
         context.terminate();
         return "Terminated";
     }
-}
+    }

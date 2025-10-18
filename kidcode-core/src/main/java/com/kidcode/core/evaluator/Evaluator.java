@@ -16,7 +16,8 @@ public class Evaluator {
     private final Supplier<Boolean> stopSignal;
     private final List<ExecutionEvent> events = new ArrayList<>();
 
-    // Debugger fields
+
+   // Debugger fields
     private final ExecutionContext executionContext;
     private final Set<Integer> breakpoints;
 
@@ -54,17 +55,21 @@ public class Evaluator {
         if (lineNumber != -1 && breakpoints.contains(lineNumber)) {
             executionContext.pause();
         }
+ // Pause if breakpoint
+        if (lineNumber != -1 && breakpoints.contains(lineNumber)) {
+            executionContext.pause();
+        }
 
         // Wait if paused
         executionContext.waitIfPaused();
 
         if (stopSignal.get() || ++instructionCount > INSTRUCTION_LIMIT) {
-            if (instructionCount > INSTRUCTION_LIMIT) {
+        if (instructionCount > INSTRUCTION_LIMIT) {
                 events.add(new ExecutionEvent.ErrorEvent("Execution timed out! Possible infinite loop."));
             }
             return;
         }
-
+        
         if (stmt instanceof SetStatement setStmt) {
             Object value = evaluateExpression(setStmt.value(), env);
             if (isError(value)) {
