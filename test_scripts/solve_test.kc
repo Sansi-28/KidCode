@@ -1,0 +1,20 @@
+# Test script for solve function
+
+# Test integers
+set result1 = RiddleWords.solve("50")
+print("solve('50') = " + result1)
+
+# Test floating-point numbers
+set result2 = RiddleWords.solve("3.14")
+print("solve('3.14') = " + result2)
+
+# Test negative numbers
+set result3 = RiddleWords.solve("-10")
+print("solve('-10') = " + result3)
+
+# Test invalid input
+try:
+    set result4 = RiddleWords.solve("abc")
+    print("solve('abc') = " + result4)
+catch e:
+    print("solve('abc') threw exception: " + e)
