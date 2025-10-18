@@ -20,7 +20,7 @@ public class BackpackWords {
     // Returns the first treasure
     public static String front(List<String> backpack) {
         if (backpack == null || backpack.isEmpty()) {
-            return null; // or throw new IllegalStateException("Backpack is empty");
+            throw new IllegalStateException("Cannot get front of empty backpack");
         }
         return backpack.get(0);
     }
@@ -28,7 +28,7 @@ public class BackpackWords {
     // Returns the last treasure
     public static String back(List<String> backpack) {
         if (backpack == null || backpack.isEmpty()) {
-            return null; // or throw new IllegalStateException("Backpack is empty");
+            throw new IllegalStateException("Cannot get back of empty backpack");
         }
         return backpack.get(backpack.size() - 1);
     }
