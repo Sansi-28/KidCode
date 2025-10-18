@@ -35,7 +35,10 @@ public class EvaluatorTest {
         assertEquals(250, env.getY(), "Environment Y should be reset to 250");
 
         // Check the generated event (the last one, after initial setup events)
-        ExecutionEvent.MoveEvent lastMoveEvent = (ExecutionEvent.MoveEvent) events.get(events.size() - 1);
+        assertFalse(events.isEmpty(), "Events list should not be empty");
+        ExecutionEvent lastEvent = events.get(events.size() - 1);
+        assertInstanceOf(ExecutionEvent.MoveEvent.class, lastEvent, "Last event should be a MoveEvent");
+        ExecutionEvent.MoveEvent lastMoveEvent = (ExecutionEvent.MoveEvent) lastEvent;
         assertEquals(100, lastMoveEvent.fromX());
         assertEquals(150, lastMoveEvent.fromY());
         assertEquals(250, lastMoveEvent.toX());
