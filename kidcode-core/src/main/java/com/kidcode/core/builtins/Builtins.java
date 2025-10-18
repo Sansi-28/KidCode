@@ -120,19 +120,24 @@ public final class Builtins {
     // 🧮 Solve Function
 
     private static Object solveFunction(List<Object> args) {
-        if (args.size() != 1) {
-            return "Error: solve() expects exactly 1 argument (a string).";
-        }
-        Object arg = args.get(0);
-        if (!(arg instanceof String s)) {
-            return "Error: solve() expects a string input.";
-        }
-
-        s = s.trim();
-        try {
-            return Double.parseDouble(s);
-        } catch (NumberFormatException e) {
-            return "Error: solve() cannot convert input to a number.";
-        }
+    if (args.size() != 1) {
+        return "Error: solve() expects exactly 1 argument (a string).";
     }
+    Object arg = args.get(0);
+    if (!(arg instanceof String s)) {
+        return "Error: solve() expects a string input.";
+    }
+
+    s = s.trim();
+    try {
+        // Try parsing as integer first
+        if (!s.contains(".") && !s.toLowerCase().contains("e")) {
+            return Integer.parseInt(s);
+        }
+        return Double.parseDouble(s);
+    } catch (NumberFormatException e) {
+        return "Error: solve() cannot convert input to a number.";
+    }
+}
+
 }
