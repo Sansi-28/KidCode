@@ -9,10 +9,10 @@ public class Parser {
     private int position = 0;
     private final List<String> errors = new ArrayList<>();
 
-    // Precedence enum and map remain the same
     private enum Precedence {
         LOWEST, EQUALS, LESSGREATER, SUM, PRODUCT, PREFIX, INDEX
     }
+
     private static final Map<TokenType, Precedence> precedences = new HashMap<>();
     static {
         precedences.put(TokenType.EQ, Precedence.EQUALS);
@@ -24,6 +24,7 @@ public class Parser {
         precedences.put(TokenType.STAR, Precedence.PRODUCT);
         precedences.put(TokenType.SLASH, Precedence.PRODUCT);
         precedences.put(TokenType.LBRACKET, Precedence.INDEX);
+        precedences.put(TokenType.LPAREN, Precedence.INDEX); // Function calls
     }
 
     public Parser(Lexer lexer) {
@@ -46,7 +47,6 @@ public class Parser {
         position++;
     }
 
-    // MODIFIED: The main program loop NO LONGER calls nextToken().
     public List<Statement> parseProgram() {
         List<Statement> statements = new ArrayList<>();
         while (currentToken().type() != TokenType.EOF) {
@@ -58,34 +58,26 @@ public class Parser {
         return statements;
     }
 
-    // NEW: A helper to advance the token only if it's not EOF.
-    // This simplifies the end of all parse...Statement methods.
     private void advanceToNextStatement() {
-        // Most statements are one per line. We advance until we find the next meaningful token.
-        // This is not strictly necessary for this parser, but is good practice.
-        // For our current grammar, a simple nextToken() is sufficient.
         nextToken();
     }
 
-   private Statement parseStatement() {
-    int line = currentToken().lineNumber(); // capture line number at start
-    int startPos = position; // remember position to detect no-progress errors
-
-    Statement inner = switch (currentToken().type()) {
-        case MOVE -> parseMoveStatement();
-        case TURN -> parseTurnStatement();
-        case SAY -> parseSayStatement();
-        case REPEAT -> parseRepeatStatement();
-        case SET -> parseSetStatement();
-        case IF -> parseIfStatement();
-        case PEN -> parsePenStatement();
-        case COLOR -> parseSetColorStatement();
-        case DEFINE -> parseFunctionDefinitionStatement();
-        case IDENTIFIER -> parseFunctionCallStatement();
-        default -> {
-            errors.add("Error line " + currentToken().lineNumber() + ": Invalid start of a statement: '" + currentToken().literal() + "'");
-            advanceToNextStatement();
-            yield null;
+    private Statement parseStatement() {
+        switch (currentToken().type()) {
+            case MOVE: return parseMoveStatement();
+            case TURN: return parseTurnStatement();
+            case SAY: return parseSayStatement();
+            case REPEAT: return parseRepeatStatement();
+            case SET: return parseSetStatement();
+            case IF: return parseIfStatement();
+            case PEN: return parsePenStatement();
+            case COLOR: return parseSetColorStatement();
+            case DEFINE: return parseFunctionDefinitionStatement();
+            case IDENTIFIER: return parseFunctionCallStatement();
+            default:
+                errors.add("Error line " + currentToken().lineNumber() + ": Invalid start of a statement: '" + currentToken().literal() + "'");
+                advanceToNextStatement();
+                return null;
         }
         };
 
@@ -102,28 +94,26 @@ public class Parser {
 
 
     private MoveStatement parseMoveStatement() {
-        // ... (parsing logic is the same)
         nextToken(); // Consume 'forward'
         nextToken(); // Move to the expression
         Expression steps = parseExpression(Precedence.LOWEST);
-        advanceToNextStatement(); // MODIFIED: Advance token stream
+        advanceToNextStatement();
         return new MoveStatement(steps);
     }
 
     private TurnStatement parseTurnStatement() {
-        // ... (parsing logic is the same)
         nextToken(); // Consume 'left' or 'right'
         String direction = currentToken().literal();
         nextToken(); // Move to the expression
         Expression degrees = parseExpression(Precedence.LOWEST);
-        advanceToNextStatement(); // MODIFIED: Advance token stream
+        advanceToNextStatement();
         return new TurnStatement(direction, degrees);
     }
 
     private SayStatement parseSayStatement() {
         nextToken(); // Consume 'say', move to string
         Expression message = parseExpression(Precedence.LOWEST);
-        advanceToNextStatement(); // MODIFIED: Advance token stream
+        advanceToNextStatement();
         return new SayStatement(message);
     }
 
@@ -138,25 +128,25 @@ public class Parser {
         }
         nextToken(); // Consume '=', move to expression
         Expression value = parseExpression(Precedence.LOWEST);
-        advanceToNextStatement(); // MODIFIED: Advance token stream
+        advanceToNextStatement();
         return new SetStatement(name, value);
     }
 
     private PenStatement parsePenStatement() {
-        nextToken(); // Consume 'pen'
+        nextToken();
         if (currentToken().type() != TokenType.UP && currentToken().type() != TokenType.DOWN) {
             errors.add("Error line " + currentToken().lineNumber() + ": Expected 'up' or 'down' after 'pen'");
             return null;
         }
         String state = currentToken().literal();
-        advanceToNextStatement(); // MODIFIED: Advance token stream
+        advanceToNextStatement();
         return new PenStatement(state);
     }
 
     private SetColorStatement parseSetColorStatement() {
-        nextToken(); // Consume 'color'
+        nextToken();
         Expression colorName = parseExpression(Precedence.LOWEST);
-        advanceToNextStatement(); // MODIFIED: Advance token stream
+        advanceToNextStatement();
         return new SetColorStatement(colorName);
     }
     
@@ -169,11 +159,10 @@ public class Parser {
             nextToken();
             arguments.add(parseExpression(Precedence.LOWEST));
         }
-        advanceToNextStatement(); // MODIFIED: Advance token stream
+        advanceToNextStatement();
         return new FunctionCallStatement(function, arguments);
     }
 
-    // NEW: Helper to check if a token can be the start of an argument.
     private boolean isArgument(TokenType type) {
         return type == TokenType.NUMBER || type == TokenType.IDENTIFIER ||
                type == TokenType.STRING || type == TokenType.LPAREN || type == TokenType.LBRACKET;
@@ -195,7 +184,7 @@ public class Parser {
         if (peekToken().type() == TokenType.DEFINE) {
             nextToken(); // consume 'define' from 'end define'
         }
-        advanceToNextStatement(); // MODIFIED: Advance token stream
+        advanceToNextStatement();
         return new FunctionDefinitionStatement(name, parameters, body);
     }
 
@@ -208,12 +197,12 @@ public class Parser {
         if (peekToken().type() == TokenType.REPEAT) {
             nextToken(); // consume 'repeat' from 'end repeat'
         }
-        advanceToNextStatement(); // MODIFIED: Advance token stream
+        advanceToNextStatement();
         return new RepeatStatement(times, body);
     }
 
     private IfStatement parseIfStatement() {
-        nextToken(); // Consume 'if'
+        nextToken();
         Expression condition = parseExpression(Precedence.LOWEST);
         List<Statement> consequence = parseBlock();
         List<Statement> alternative = null;
@@ -231,7 +220,6 @@ public class Parser {
         return new IfStatement(condition, consequence, alternative);
     }
 
-    // MODIFIED: The block parsing loop NO LONGER calls nextToken().
     private List<Statement> parseBlock() {
         List<Statement> block = new ArrayList<>();
         nextToken(); // Consume the keyword that started the block (or 'else')
@@ -253,7 +241,13 @@ public class Parser {
     private Expression parseExpression(Precedence precedence) {
         Expression left;
         switch (currentToken().type()) {
-            case IDENTIFIER: left = new Identifier(currentToken().literal()); break;
+            case IDENTIFIER:
+                if (peekToken().type() == TokenType.LPAREN) {
+                    left = parseFunctionCallExpression();
+                } else {
+                    left = new Identifier(currentToken().literal());
+                }
+                break;
             case NUMBER: left = new IntegerLiteral(Integer.parseInt(currentToken().literal())); break;
             case STRING: left = new StringLiteral(currentToken().literal()); break;
             case LPAREN: left = parseGroupedExpression(); break;
@@ -273,6 +267,11 @@ public class Parser {
                     nextToken();
                     left = parseIndexExpression(left);
                     break;
+                case LPAREN:
+                    // Chained function calls like `get_list()()` are not supported.
+                    nextToken(); // Consume the '('.
+                    errors.add("Error line " + currentToken().lineNumber() + ": Chained function calls are not supported.");
+                    return null;
                 default:
                     return left;
             }
@@ -280,6 +279,45 @@ public class Parser {
         return left;
     }
     
+    private Expression parseFunctionCallExpression() {
+        Identifier function = new Identifier(currentToken().literal());
+        nextToken(); // Consume function name, current token is now '('
+        List<Expression> arguments = parseExpressionList(TokenType.RPAREN);
+        if (arguments == null) {
+            return null; // error already recorded by parseExpressionList
+        }
+        return new FunctionCallExpression(function, arguments);
+    }
+
+    private List<Expression> parseExpressionList(TokenType endToken) {
+        List<Expression> list = new ArrayList<>();
+        if (peekToken().type() == endToken) {
+            nextToken(); // Consume end token
+            return list;
+        }
+        nextToken(); // Move past '(' or '['
+        Expression first = parseExpression(Precedence.LOWEST);
+        if (first == null) {
+            return null; // error already recorded upstream
+        }
+        list.add(first);
+        while (peekToken().type() == TokenType.COMMA) {
+            nextToken();
+            nextToken();
+            Expression next = parseExpression(Precedence.LOWEST);
+            if (next == null) {
+                return null; // propagate error; avoid inserting null
+            }
+            list.add(next);
+        }
+        if (peekToken().type() != endToken) {
+            errors.add("Error line " + currentToken().lineNumber() + ": Expected '" + endToken + "' but got '" + peekToken().literal() + "'");
+            return null;
+        }
+        nextToken(); // Consume end token
+        return list;
+    }
+
     private Expression parseInfixExpression(Expression left) {
         String operator = currentToken().literal();
         Precedence p = precedences.get(currentToken().type());
@@ -298,20 +336,10 @@ public class Parser {
     }
     
     private Expression parseListLiteral() {
-        List<Expression> elements = new ArrayList<>();
-        if (peekToken().type() == TokenType.RBRACKET) {
-            nextToken();
-            return new ListLiteral(elements);
+        List<Expression> elements = parseExpressionList(TokenType.RBRACKET);
+        if (elements == null) {
+            return null; // error already recorded
         }
-        nextToken();
-        elements.add(parseExpression(Precedence.LOWEST));
-        while (peekToken().type() == TokenType.COMMA) {
-            nextToken();
-            nextToken();
-            elements.add(parseExpression(Precedence.LOWEST));
-        }
-        if (peekToken().type() != TokenType.RBRACKET) { /* error */ return null; }
-        nextToken();
         return new ListLiteral(elements);
     }
     

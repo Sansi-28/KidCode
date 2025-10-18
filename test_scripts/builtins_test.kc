@@ -1,0 +1,13 @@
+# Test script for built-in functions like count() and whisper()
+
+say "--- Testing Built-in Functions ---"
+
+set my_word = "Cody"
+set word_length = count(my_word)
+say "The word '" + my_word + "' has " + whisper(word_length) + " letters."
+
+set my_backpack = ["shiny rock", "magic wand", 123]
+set item_count = count(my_backpack)
+say "My backpack has " + whisper(item_count) + " items."
+
+say "--- Test Complete ---"

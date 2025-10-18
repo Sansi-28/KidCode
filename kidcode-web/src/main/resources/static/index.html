@@ -1,83 +1,235 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>KidCode Web Interpreter</title>
-    <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="style.css?v=2" />
     <link
-    rel="stylesheet"
-    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
-    integrity="sha512-6UkeuJ+JSTasDIXhVFMz+yTQq5j0KiG2Zs0hV3uOJwMsqZs1XUy3JvRlq9s6C1q8PBA0qL/jY1TRf9bA2wD9kg=="
-    crossorigin="anonymous"
-    referrerpolicy="no-referrer"
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+      integrity="sha512-6UkeuJ+JSTasDIXhVFMz+yTQq5j0KiG2Zs0hV3uOJwMsqZs1XUy3JvRlq9s6C1q8PBA0qL/jY1TRf9bA2wD9kg=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
     />
     <!-- MONACO: Link to the Monaco loader script -->
     <script src="https://cdn.jsdelivr.net/npm/monaco-editor@0.34.1/min/vs/loader.js"></script>
-</head>
-<body>
+  </head>
+  <body>
     <header>
-        <h1>KidCode Web Interpreter 🎨</h1>
+      <h1>KidCode Web Interpreter 🎨</h1>
     </header>
 
     <main class="container">
-        <div class="editor-panel">
-            <div class="panel-header">
-                <h3>Code Editor</h3>
+      <div class="editor-panel">
+        <div class="panel-header">
+          <div class="panel-left">
+            <h3>Code Editor</h3>
+            <div class="example-selector-wrapper">
+              <select id="exampleSelector" aria-label="Choose Example">
+                <option value="">Select an Example</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="panel-controls">
+            <button id="help-button" class="animated-btn help-btn">
+              <span class="button-icon"
+                ><i class="fa-solid fa-circle-info"></i
+              ></span>
+              Help
+            </button>
+
+            <button id="run-button" class="animated-btn run-btn">
+              <span class="button-icon"><i class="fa-solid fa-play"></i></span>
+              Run
+            </button>
+          </div>
+        </div>
+
+        <div
+          id="editor-container"
+          style="flex-grow: 1; border: 1px solid #e0e0e0"
+        ></div>
+      </div>
+
+      <div class="visual-panel">
+        <div class="panel-header">
+          <h3>Cody's Canvas</h3>
                 <div>
-                    <button id="help-button" class="animated-btn help-btn">
-                    <span class="button-icon"><i class="fa-solid fa-circle-info"></i></span> Help
-                    </button>
-
-                    <button id="run-button" class="animated-btn run-btn">
-                    <span class="button-icon"><i class="fa-solid fa-play"></i></span> Run
-                    </button>
+                    <button id="download-btn">Download Drawing</button>
                 </div>
-            </div>
-            <!-- MONACO: Replace textarea with a div container -->
-            <div id="editor-container" style="flex-grow: 1; border: 1px solid #e0e0e0;"></div>
         </div>
-
-        <div class="visual-panel">
-            <div class="panel-header">
-                <h3>Cody's Canvas</h3>
-            </div>
-            <canvas id="drawing-canvas" width="500" height="500"></canvas>
-        </div>
+        <canvas id="drawing-canvas" width="500" height="500"></canvas>
+      </div>
     </main>
 
     <footer>
-        <div class="output-log">
-            <h3>Output Log</h3>
-            <pre id="output-area"></pre>
-        </div>
+      <div class="output-log">
+        <h3>Output Log</h3>
+        <pre id="output-area"></pre>
+      </div>
     </footer>
 
     <div id="help-modal" class="modal hidden">
-        <div class="modal-content">
-            <span class="close-button">×</span>
-            <div id="help-docs">
-                <h2>KidCode Language Reference</h2>
-                <p>Welcome to KidCode! This guide will teach you everything you need to know to control Cody and create amazing drawings.</p>
-                <h3>1. Basic Turtle Commands</h3>
-                <table><thead><tr><th>Command</th><th>Syntax</th><th>Example</th><th>Description</th></tr></thead><tbody><tr><td><strong>Move</strong></td><td><code>move forward &lt;value&gt;</code></td><td><code>move forward 100</code></td><td>Moves Cody forward by a number of pixels.</td></tr><tr><td><strong>Turn</strong></td><td><code>turn &lt;direction&gt; &lt;value&gt;</code></td><td><code>turn right 90</code></td><td>Turns Cody to the left or right by a number of degrees.</td></tr><tr><td><strong>Say</strong></td><td><code>say &lt;value&gt;</code></td><td><code>say "Hello!"</code></td><td>Displays a message in the output log. Can be a string or a variable.</td></tr></tbody></table>
-                <h3>2. Pen and Color Control</h3>
-                <table><thead><tr><th>Command</th><th>Syntax</th><th>Example</th><th>Description</th></tr></thead><tbody><tr><td><strong>Pen</strong></td><td><code>pen &lt;up / down&gt;</code></td><td><code>pen up</code></td><td>Lifts the pen (to move without drawing) or lowers it (to draw).</td></tr><tr><td><strong>Color</strong></td><td><code>color &lt;color_name&gt;</code></td><td><code>color "red"</code></td><td>Changes the color of the pen.</td></tr></tbody></table>
-                <p><strong>Supported Colors:</strong> <code>"red"</code>, <code>"green"</code>, <code>"blue"</code>, <code>"yellow"</code>, <code>"orange"</code>, <code>"purple"</code>, <code>"black"</code>, <code>"white"</code>.</p>
-                <h3>3. Variables and Expressions</h3>
-                <h4>Variables</h4><p>Use the <code>set</code> command to create a variable and give it a value.</p><ul><li><strong>Syntax:</strong> <code>set &lt;variable_name&gt; = &lt;value&gt;</code></li><li><strong>Example:</strong> <code>set size = 50</code></li></ul>
-                <h4>Math and Logic</h4>
-                <table><thead><tr><th>Operator</th><th>Description</th><th>Example</th></tr></thead><tbody><tr><td><code>+</code></td><td>Addition / String Concatenation</td><td><code>set x = 10 + 5</code> <br> <code>say "Hello" + " World"</code></td></tr><tr><td><code>-</code></td><td>Subtraction</td><td><code>set x = 10 - 5</code></td></tr><tr><td><code>*</code></td><td>Multiplication</td><td><code>set x = 10 * 5</code></td></tr><tr><td><code>/</code></td><td>Division</td><td><code>set x = 10 / 5</code></td></tr><tr><td><code>==</code></td><td>Is Equal To</td><td><code>if x == 10</code></td></tr><tr><td><code>!=</code></td><td>Is Not Equal To</td><td><code>if x != 10</code></td></tr><tr><td><code>&gt;</code></td><td>Is Greater Than</td><td><code>if x &gt; 10</code></td></tr><tr><td><code>&lt;</code></td><td>Is Less Than</td><td><code>if x &lt; 10</code></td></tr></tbody></table>
-                <h3>4. Control Flow</h3>
-                <h4>Loops (<code>repeat</code>)</h4><pre><code>repeat &lt;times&gt;
+      <div class="modal-content">
+        <span class="close-button">×</span>
+        <div id="help-docs">
+          <h2>KidCode Language Reference</h2>
+          <p>
+            Welcome to KidCode! This guide will teach you everything you need to
+            know to control Cody and create amazing drawings.
+          </p>
+          <h3>1. Basic Turtle Commands</h3>
+          <table>
+            <thead>
+              <tr>
+                <th>Command</th>
+                <th>Syntax</th>
+                <th>Example</th>
+                <th>Description</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>Move</strong></td>
+                <td><code>move forward &lt;value&gt;</code></td>
+                <td><code>move forward 100</code></td>
+                <td>Moves Cody forward by a number of pixels.</td>
+              </tr>
+              <tr>
+                <td><strong>Turn</strong></td>
+                <td><code>turn &lt;direction&gt; &lt;value&gt;</code></td>
+                <td><code>turn right 90</code></td>
+                <td>Turns Cody to the left or right by a number of degrees.</td>
+              </tr>
+              <tr>
+                <td><strong>Say</strong></td>
+                <td><code>say &lt;value&gt;</code></td>
+                <td><code>say "Hello!"</code></td>
+                <td>
+                  Displays a message in the output log. Can be a string or a
+                  variable.
+                </td>
+              </tr>
+            </tbody>
+          </table>
+          <h3>2. Pen and Color Control</h3>
+          <table>
+            <thead>
+              <tr>
+                <th>Command</th>
+                <th>Syntax</th>
+                <th>Example</th>
+                <th>Description</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>Pen</strong></td>
+                <td><code>pen &lt;up / down&gt;</code></td>
+                <td><code>pen up</code></td>
+                <td>
+                  Lifts the pen (to move without drawing) or lowers it (to
+                  draw).
+                </td>
+              </tr>
+              <tr>
+                <td><strong>Color</strong></td>
+                <td><code>color &lt;color_name&gt;</code></td>
+                <td><code>color "red"</code></td>
+                <td>Changes the color of the pen.</td>
+              </tr>
+            </tbody>
+          </table>
+          <p>
+            <strong>Supported Colors:</strong> <code>"red"</code>,
+            <code>"green"</code>, <code>"blue"</code>, <code>"yellow"</code>,
+            <code>"orange"</code>, <code>"purple"</code>, <code>"black"</code>,
+            <code>"white"</code>, <code>"cyan"</code>, <code>"magenta"</code>, <code>"pink"</code>, <code>"brown"</code>.
+          </p>
+          <h3>3. Variables and Expressions</h3>
+          <h4>Variables</h4>
+          <p>
+            Use the <code>set</code> command to create a variable and give it a
+            value.
+          </p>
+          <ul>
+            <li>
+              <strong>Syntax:</strong>
+              <code>set &lt;variable_name&gt; = &lt;value&gt;</code>
+            </li>
+            <li><strong>Example:</strong> <code>set size = 50</code></li>
+          </ul>
+          <h4>Math and Logic</h4>
+          <table>
+            <thead>
+              <tr>
+                <th>Operator</th>
+                <th>Description</th>
+                <th>Example</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>+</code></td>
+                <td>Addition / String Concatenation</td>
+                <td>
+                  <code>set x = 10 + 5</code> <br />
+                  <code>say "Hello" + " World"</code>
+                </td>
+              </tr>
+              <tr>
+                <td><code>-</code></td>
+                <td>Subtraction</td>
+                <td><code>set x = 10 - 5</code></td>
+              </tr>
+              <tr>
+                <td><code>*</code></td>
+                <td>Multiplication</td>
+                <td><code>set x = 10 * 5</code></td>
+              </tr>
+              <tr>
+                <td><code>/</code></td>
+                <td>Division</td>
+                <td><code>set x = 10 / 5</code></td>
+              </tr>
+              <tr>
+                <td><code>==</code></td>
+                <td>Is Equal To</td>
+                <td><code>if x == 10</code></td>
+              </tr>
+              <tr>
+                <td><code>!=</code></td>
+                <td>Is Not Equal To</td>
+                <td><code>if x != 10</code></td>
+              </tr>
+              <tr>
+                <td><code>&gt;</code></td>
+                <td>Is Greater Than</td>
+                <td><code>if x &gt; 10</code></td>
+              </tr>
+              <tr>
+                <td><code>&lt;</code></td>
+                <td>Is Less Than</td>
+                <td><code>if x &lt; 10</code></td>
+              </tr>
+            </tbody>
+          </table>
+          <h3>4. Control Flow</h3>
+          <h4>Loops (<code>repeat</code>)</h4>
+          <pre><code>repeat &lt;times&gt;
     # code to repeat
 end repeat</code></pre>
-                <h4>Conditionals (<code>if</code>/<code>else</code>)</h4><pre><code>if &lt;condition&gt;
+          <h4>Conditionals (<code>if</code>/<code>else</code>)</h4>
+          <pre><code>if &lt;condition&gt;
     # code
 else
     # other code
 end if</code></pre>
-                <h3>5. Functions</h3><p>Group your code into reusable commands.</p><pre><code>define square size
+          <h3>5. Functions</h3>
+          <p>Group your code into reusable commands.</p>
+          <pre><code>define square size
     repeat 4
         move forward size
         turn right 90
@@ -85,12 +237,16 @@ end if</code></pre>
 end define
 
 square 50</code></pre>
-                <h3>6. Lists</h3><p>Store a collection of items. Access with <code>list_name[0]</code>.</p><pre><code>set colors = ["red", "green", "blue"]
+          <h3>6. Lists</h3>
+          <p>
+            Store a collection of items. Access with <code>list_name[0]</code>.
+          </p>
+          <pre><code>set colors = ["red", "green", "blue"]
 color colors[0]</code></pre>
-            </div>
         </div>
+      </div>
     </div>
-
+    <script src="examples.js"></script>
     <script src="app.js"></script>
-</body>
-</html> 
+  </body>
+</html>

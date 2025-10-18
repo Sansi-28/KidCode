@@ -1,0 +1,56 @@
+# Advanced color test script demonstrating all supported colors
+# This script tests both original and new colors in a spiral pattern
+
+# Test original colors first
+say "Testing original colors..."
+color "red"
+move forward 50
+turn right 45
+
+color "green"
+move forward 55
+turn right 45
+
+color "blue"
+move forward 60
+turn right 45
+
+color "yellow"
+move forward 65
+turn right 45
+
+color "orange"
+move forward 70
+turn right 45
+
+color "purple"
+move forward 75
+turn right 45
+
+color "black"
+move forward 80
+turn right 45
+
+color "white"
+move forward 85
+turn right 45
+
+# Test new colors in a second spiral
+say "Testing new colors..."
+color "cyan"
+move forward 90
+turn right 45
+
+color "magenta"
+move forward 95
+turn right 45
+
+color "pink"
+move forward 100
+turn right 45
+
+color "brown"
+move forward 105
+turn right 45
+
+say "Color test completed! All 12 colors work correctly."
