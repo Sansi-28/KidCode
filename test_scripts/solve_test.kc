@@ -1,20 +1,27 @@
-# Test script for solve function
+# Test script for RiddleWords.solve
 
 # Test integers
 set result1 = RiddleWords.solve("50")
-print("solve('50') = " + result1)
+expect result1 == 50
 
 # Test floating-point numbers
 set result2 = RiddleWords.solve("3.14")
-print("solve('3.14') = " + result2)
+expect result2 == 3.14
 
 # Test negative numbers
 set result3 = RiddleWords.solve("-10")
-print("solve('-10') = " + result3)
+expect result3 == -10
 
-# Test invalid input
+# Test whitespace input must throw
 try:
-    set result4 = RiddleWords.solve("abc")
-    print("solve('abc') = " + result4)
+    set _ = RiddleWords.solve("   ")
+    expect false   # should not reach here
 catch e:
-    print("solve('abc') threw exception: " + e)
+    expect true    # exception expected
+
+# Test invalid input must throw
+try:
+    set _ = RiddleWords.solve("abc")
+    expect false   # should not reach here
+catch e:
+    expect true    # exception expected
