@@ -283,11 +283,19 @@ public class Parser {
             return list;
         }
         nextToken(); // Move past '(' or '['
-        list.add(parseExpression(Precedence.LOWEST));
+        Expression first = parseExpression(Precedence.LOWEST);
+        if (first == null) {
+            return null; // error already recorded upstream
+        }
+        list.add(first);
         while (peekToken().type() == TokenType.COMMA) {
             nextToken();
             nextToken();
-            list.add(parseExpression(Precedence.LOWEST));
+            Expression next = parseExpression(Precedence.LOWEST);
+            if (next == null) {
+                return null; // propagate error; avoid inserting null
+            }
+            list.add(next);
         }
         if (peekToken().type() != endToken) {
             errors.add("Error line " + currentToken().lineNumber() + ": Expected '" + endToken + "' but got '" + peekToken().literal() + "'");
