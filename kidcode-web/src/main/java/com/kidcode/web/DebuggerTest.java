@@ -37,12 +37,11 @@ public class DebuggerTest {
         });
         t.start();
 
-        System.out.println("Program paused at breakpoint. Waiting 2 seconds...");
+         System.out.println("Program paused at breakpoint. Waiting 2 seconds...");
         Thread.sleep(2000);
 
         System.out.println("Resuming execution...");
         context.resume();
-
         t.join();
         System.out.println("Test finished.");
     }
