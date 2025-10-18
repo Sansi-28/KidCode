@@ -12,6 +12,7 @@ public class Parser {
     private enum Precedence {
         LOWEST, EQUALS, LESSGREATER, SUM, PRODUCT, PREFIX, INDEX
     }
+
     private static final Map<TokenType, Precedence> precedences = new HashMap<>();
     static {
         precedences.put(TokenType.EQ, Precedence.EQUALS);
@@ -23,6 +24,7 @@ public class Parser {
         precedences.put(TokenType.STAR, Precedence.PRODUCT);
         precedences.put(TokenType.SLASH, Precedence.PRODUCT);
         precedences.put(TokenType.LBRACKET, Precedence.INDEX);
+        precedences.put(TokenType.LPAREN, Precedence.INDEX); // Function calls
     }
 
     public Parser(Lexer lexer) {
@@ -226,7 +228,13 @@ public class Parser {
     private Expression parseExpression(Precedence precedence) {
         Expression left;
         switch (currentToken().type()) {
-            case IDENTIFIER: left = new Identifier(currentToken().literal()); break;
+            case IDENTIFIER:
+                if (peekToken().type() == TokenType.LPAREN) {
+                    left = parseFunctionCallExpression();
+                } else {
+                    left = new Identifier(currentToken().literal());
+                }
+                break;
             case NUMBER: left = new IntegerLiteral(Integer.parseInt(currentToken().literal())); break;
             case STRING: left = new StringLiteral(currentToken().literal()); break;
             case LPAREN: left = parseGroupedExpression(); break;
@@ -246,6 +254,11 @@ public class Parser {
                     nextToken();
                     left = parseIndexExpression(left);
                     break;
+                case LPAREN:
+                    // Chained function calls like `get_list()()` are not supported.
+                    nextToken(); // Consume the '('.
+                    errors.add("Error line " + currentToken().lineNumber() + ": Chained function calls are not supported.");
+                    return null;
                 default:
                     return left;
             }
@@ -253,6 +266,45 @@ public class Parser {
         return left;
     }
     
+    private Expression parseFunctionCallExpression() {
+        Identifier function = new Identifier(currentToken().literal());
+        nextToken(); // Consume function name, current token is now '('
+        List<Expression> arguments = parseExpressionList(TokenType.RPAREN);
+        if (arguments == null) {
+            return null; // error already recorded by parseExpressionList
+        }
+        return new FunctionCallExpression(function, arguments);
+    }
+
+    private List<Expression> parseExpressionList(TokenType endToken) {
+        List<Expression> list = new ArrayList<>();
+        if (peekToken().type() == endToken) {
+            nextToken(); // Consume end token
+            return list;
+        }
+        nextToken(); // Move past '(' or '['
+        Expression first = parseExpression(Precedence.LOWEST);
+        if (first == null) {
+            return null; // error already recorded upstream
+        }
+        list.add(first);
+        while (peekToken().type() == TokenType.COMMA) {
+            nextToken();
+            nextToken();
+            Expression next = parseExpression(Precedence.LOWEST);
+            if (next == null) {
+                return null; // propagate error; avoid inserting null
+            }
+            list.add(next);
+        }
+        if (peekToken().type() != endToken) {
+            errors.add("Error line " + currentToken().lineNumber() + ": Expected '" + endToken + "' but got '" + peekToken().literal() + "'");
+            return null;
+        }
+        nextToken(); // Consume end token
+        return list;
+    }
+
     private Expression parseInfixExpression(Expression left) {
         String operator = currentToken().literal();
         Precedence p = precedences.get(currentToken().type());
@@ -271,20 +323,10 @@ public class Parser {
     }
     
     private Expression parseListLiteral() {
-        List<Expression> elements = new ArrayList<>();
-        if (peekToken().type() == TokenType.RBRACKET) {
-            nextToken();
-            return new ListLiteral(elements);
+        List<Expression> elements = parseExpressionList(TokenType.RBRACKET);
+        if (elements == null) {
+            return null; // error already recorded
         }
-        nextToken();
-        elements.add(parseExpression(Precedence.LOWEST));
-        while (peekToken().type() == TokenType.COMMA) {
-            nextToken();
-            nextToken();
-            elements.add(parseExpression(Precedence.LOWEST));
-        }
-        if (peekToken().type() != TokenType.RBRACKET) { /* error */ return null; }
-        nextToken();
         return new ListLiteral(elements);
     }
     
