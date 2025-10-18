@@ -1,0 +1,15 @@
+# Test script for pack, front, and back
+
+set backpack = []
+set backpack = pack(backpack, "shiny rock")
+set backpack = pack(backpack, "magic wand")
+
+say "Testing pack..."
+expect count(backpack) == 2
+expect back(backpack) == "magic wand"
+expect front(backpack) == "shiny rock"
+
+say "Testing empty backpack..."
+set empty = []
+expect front(empty) == none
+expect back(empty) == none
