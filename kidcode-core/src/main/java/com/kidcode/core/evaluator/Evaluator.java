@@ -130,6 +130,14 @@ public class Evaluator {
             evaluateFunctionCall(funcCallStmt, env);
         } else if (stmt instanceof ExpressionStatement exprStmt) {
             evaluateExpression(exprStmt.expression(), env);
+        } else if (stmt instanceof HomeStatement) {
+            int oldX = env.getX();
+            int oldY = env.getY();
+            int newX = 250;
+            int newY = 250;
+            env.setPosition(newX, newY);
+            // Add a move event, but with the pen up so it doesn't draw a line.
+            events.add(new ExecutionEvent.MoveEvent(oldX, oldY, newX, newY, env.getDirection(), false, env.getPenColor()));
         }
     }
 

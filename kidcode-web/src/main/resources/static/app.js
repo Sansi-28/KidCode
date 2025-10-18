@@ -39,6 +39,7 @@ function registerKidCodeLanguage() {
       "pen",
       "up",
       "down",
+      "home",
       "color",
     ],
     tokenizer: {

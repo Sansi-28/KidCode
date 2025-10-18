@@ -61,10 +61,13 @@ public final class Builtins {
         }
         Object listObj = args.get(0);
         Object item = args.get(1);
-        if (!(listObj instanceof List<Object> list)) {
+        if (!(listObj instanceof List)) {
             return "Error: pack() expects a list as the first argument.";
         }
-        if (item == null) {
+        // Safe cast after type check
+        @SuppressWarnings("unchecked")
+        List<Object> list = (List<Object>) listObj;
+        if (item == null) { // This check is fine, but let's keep the logic flow
             return "Error: cannot pack a null item.";
         }
         list.add(item);

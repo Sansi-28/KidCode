@@ -2,7 +2,7 @@ package com.kidcode.core.lexer;
 
 public enum TokenType {
     // Commands & Keywords
-    MOVE, FORWARD, TURN, LEFT, RIGHT, SAY,
+    MOVE, FORWARD, TURN, LEFT, RIGHT, SAY, HOME,
 
     // Values
     NUMBER, STRING,
