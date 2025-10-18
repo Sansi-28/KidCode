@@ -1,6 +1,5 @@
 package com.kidcode.core.builtins;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -15,31 +14,20 @@ public final class Builtins {
     private static final Map<String, Builtin> BUILTINS;
 
     static {
-        BUILTINS = Map.ofEntries(
-            Map.entry("count", new Builtin(Builtins::countFunction)),
-            Map.entry("whisper", new Builtin(Builtins::whisperFunction)),
-            Map.entry("pack", new Builtin(Builtins::packFunction)),
-            Map.entry("front", new Builtin(Builtins::frontFunction)),
-            Map.entry("back", new Builtin(Builtins::backFunction)),
-            Map.entry("solve", new Builtin(Builtins::solveFunction))
+        BUILTINS = Map.of(
+            "count", new Builtin(Builtins::countFunction),
+            "whisper", new Builtin(Builtins::whisperFunction),
+            "pack", new Builtin(Builtins::packFunction),
+            "front", new Builtin(Builtins::frontFunction),
+            "back", new Builtin(Builtins::backFunction),
+            "solve", new Builtin(Builtins::solveFunction)
         );
     }
 
-    /**
-     * Checks if a function name corresponds to a built-in function.
-     * @param name The name of the function.
-     * @return true if it's a built-in, false otherwise.
-     */
     public static boolean isBuiltin(String name) {
         return BUILTINS.containsKey(name);
     }
 
-    /**
-     * Applies a built-in function by name to a list of arguments.
-     * @param name The name of the built-in function.
-     * @param args The list of evaluated arguments.
-     * @return The result of the function call, or an error string.
-     */
     public static Object apply(String name, List<Object> args) {
         Builtin builtin = BUILTINS.get(name);
         if (builtin == null) {
@@ -67,26 +55,20 @@ public final class Builtins {
         return String.valueOf(args.get(0));
     }
 
-    // 🧳 Backpack Magic Words
-
     private static Object packFunction(List<Object> args) {
         if (args.size() != 2) {
             return "Error: pack() expects 2 arguments: a list and an item.";
         }
-        Object backpack = args.get(0);
+        Object listObj = args.get(0);
         Object item = args.get(1);
-
-        if (backpack == null) {
-            backpack = new ArrayList<>();
+        if (!(listObj instanceof List<Object> list)) {
+            return "Error: pack() expects a list as the first argument.";
         }
-
-        if (!(backpack instanceof List<?> list)) {
-            return "Error: pack() expects the first argument to be a list.";
+        if (item == null) {
+            return "Error: cannot pack a null item.";
         }
-
-        List<Object> newList = new ArrayList<>(list);
-        newList.add(item);
-        return newList;
+        list.add(item);
+        return list;
     }
 
     private static Object frontFunction(List<Object> args) {
@@ -98,7 +80,7 @@ public final class Builtins {
             return "Error: front() expects a list.";
         }
         if (list.isEmpty()) {
-            return "Error: front() cannot be used on an empty list.";
+            return null; // Return null for empty list
         }
         return list.get(0);
     }
@@ -112,32 +94,33 @@ public final class Builtins {
             return "Error: back() expects a list.";
         }
         if (list.isEmpty()) {
-            return "Error: back() cannot be used on an empty list.";
+            return null; // Return null for empty list
         }
         return list.get(list.size() - 1);
     }
 
-    // 🧮 Solve Function
-
     private static Object solveFunction(List<Object> args) {
-    if (args.size() != 1) {
-        return "Error: solve() expects exactly 1 argument (a string).";
-    }
-    Object arg = args.get(0);
-    if (!(arg instanceof String s)) {
-        return "Error: solve() expects a string input.";
-    }
-
-    s = s.trim();
-    try {
-        // Try parsing as integer first
-        if (!s.contains(".") && !s.toLowerCase().contains("e")) {
-            return Integer.parseInt(s);
+        if (args.size() != 1) {
+            return "Error: solve() expects exactly 1 argument (a string).";
         }
-        return Double.parseDouble(s);
-    } catch (NumberFormatException e) {
-        return "Error: solve() cannot convert input to a number.";
-    }
-}
+        Object arg = args.get(0);
+        if (!(arg instanceof String s)) {
+            return "Error: solve() expects a string input.";
+        }
 
+        s = s.trim();
+        if (s.isEmpty()) {
+            return "Error: solve() cannot convert empty string to a number.";
+        }
+
+        try {
+            // Try parsing as integer first
+            if (!s.contains(".") && !s.toLowerCase().contains("e")) {
+                return Integer.parseInt(s);
+            }
+            return Double.parseDouble(s);
+        } catch (NumberFormatException e) {
+            return "Error: solve() cannot convert input to a number.";
+        }
+    }
 }
