@@ -67,8 +67,9 @@ public class Parser {
         nextToken();
     }
 
-    private Statement parseStatement() {
+   private Statement parseStatement() {
     int line = currentToken().lineNumber(); // capture line number at start
+    int startPos = position; // remember position to detect no-progress errors
 
     Statement inner = switch (currentToken().type()) {
         case MOVE -> parseMoveStatement();
@@ -86,9 +87,16 @@ public class Parser {
             advanceToNextStatement();
             yield null;
         }
-    };
+        };
 
-    if (inner == null) return null;
+    if (inner == null) {
+        // Some parse... methods return null on error without consuming tokens.
+        // Advance at least one token to avoid infinite loops.
+        if (position == startPos) {
+            advanceToNextStatement();
+        }
+        return null;
+    }
     return new LocatedStatement(inner, line); // wrap it with line number
 }
 
@@ -125,6 +133,7 @@ public class Parser {
         nextToken(); // Consume identifier, move to '='
         if (currentToken().type() != TokenType.ASSIGN) {
             errors.add("Error line " + currentToken().lineNumber() + ": Expected '=' after variable name");
+            advanceToNextStatement();
             return null;
         }
         nextToken(); // Consume '=', move to expression

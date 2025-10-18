@@ -37,12 +37,11 @@ public class KidCodeEngine {
         }
 
         Supplier<Boolean> stopSignal = () -> executionStopped;
-        ExecutionContext context = new ExecutionContext();
-        Set<Integer> breakpoints = new HashSet<>();  // empty set for now, add breakpoints as needed
+          ExecutionContext context = new ExecutionContext();
+      Set<Integer> breakpoints = new HashSet<>();  // empty set for now, add breakpoints as needed
+        Supplier<Boolean> stopSignal = () -> executionStopped || context.isTerminated();
 
         Evaluator evaluator = new Evaluator(stopSignal, context, breakpoints);
-        Environment environment = new Environment();
-
         return evaluator.evaluate(program, environment);
     }
 }

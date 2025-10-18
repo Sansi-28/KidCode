@@ -2,7 +2,6 @@ package com.kidcode.web.controller;
 
 import com.kidcode.core.evaluator.ExecutionContext;  // <-- core ExecutionContext
 import org.springframework.web.bind.annotation.*;
-
 @RestController
 @RequestMapping("/debugger")
 public class DebuggerController {
