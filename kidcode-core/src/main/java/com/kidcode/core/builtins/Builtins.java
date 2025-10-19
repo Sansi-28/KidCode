@@ -1,5 +1,6 @@
 package com.kidcode.core.builtins;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -20,7 +21,10 @@ public final class Builtins {
             "pack", new Builtin(Builtins::packFunction),
             "front", new Builtin(Builtins::frontFunction),
             "back", new Builtin(Builtins::backFunction),
-            "solve", new Builtin(Builtins::solveFunction)
+            "after", new Builtin(Builtins::afterFunction),
+            "find", new Builtin(Builtins::findFunction),
+            "solve", new Builtin(Builtins::solveFunction),
+            "kind", new Builtin(Builtins::kindFunction) // ✅ registered here
         );
     }
 
@@ -83,7 +87,7 @@ public final class Builtins {
             return "Error: front() expects a list.";
         }
         if (list.isEmpty()) {
-            return null; // Return null for empty list
+            return null;
         }
         return list.get(0);
     }
@@ -97,9 +101,35 @@ public final class Builtins {
             return "Error: back() expects a list.";
         }
         if (list.isEmpty()) {
-            return null; // Return null for empty list
+            return null;
         }
         return list.get(list.size() - 1);
+    }
+
+    private static Object afterFunction(List<Object> args) {
+        if (args.size() != 1) {
+            return "Error: after() expects exactly 1 argument: a list.";
+        }
+        Object backpack = args.get(0);
+        if (!(backpack instanceof List<?> list)) {
+            return "Error: after() expects a list.";
+        }
+        if (list.isEmpty()) {
+            return List.of(); // Return empty immutable list
+        }
+        return List.copyOf(list.subList(1, list.size()));
+    }
+
+    private static Object findFunction(List<Object> args) {
+        if (args.size() != 2) {
+            return "Error: find() expects 2 arguments: a list and an item.";
+        }
+        Object listObj = args.get(0);
+        Object item = args.get(1);
+        if (!(listObj instanceof List<?> list)) {
+            return "Error: find() expects a list as the first argument.";
+        }
+        return list.contains(item);
     }
 
     private static Object solveFunction(List<Object> args) {
@@ -117,7 +147,6 @@ public final class Builtins {
         }
 
         try {
-            // Try parsing as integer first
             if (!s.contains(".") && !s.toLowerCase().contains("e")) {
                 return Integer.parseInt(s);
             }
@@ -125,5 +154,25 @@ public final class Builtins {
         } catch (NumberFormatException e) {
             return "Error: solve() cannot convert input to a number.";
         }
+    }
+
+    // --- New kind() built-in ---
+    private static Object kindFunction(List<Object> args) {
+        if (args.size() != 1) {
+            return "Error: kind() expects exactly 1 argument, but got " + args.size();
+        }
+        Object obj = args.get(0);
+
+        if (obj instanceof Integer || obj instanceof Double || obj instanceof Float || obj instanceof Long) {
+            return "number";
+        }
+        if (obj instanceof String) {
+            return "word";
+        }
+        if (obj instanceof List<?>) {
+            return "backpack";
+        }
+        // Fallback for other object types
+        return obj.getClass().getSimpleName().toLowerCase();
     }
 }
