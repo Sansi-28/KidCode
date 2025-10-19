@@ -1,5 +1,6 @@
 package com.kidcode.core.builtins;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -110,18 +111,19 @@ public final class Builtins {
             return "Error: after() expects a list.";
         }
         if (list.isEmpty()) {
-            return List.of(); // Return empty list
+            return new ArrayList<>(); // Return empty mutable list
         }
-        return list.subList(1, list.size());
+        // Return a new mutable list starting from index 1
+        return new ArrayList<>(list.subList(1, list.size()));
     }
 
     private static Object findFunction(List<Object> args) {
         if (args.size() != 2) {
-            return "Error: find() expects 2 arguments: a list and an item to find.";
+            return "Error: find() expects 2 arguments: a list and an item.";
         }
-        Object backpack = args.get(0);
+        Object listObj = args.get(0);
         Object item = args.get(1);
-        if (!(backpack instanceof List<?> list)) {
+        if (!(listObj instanceof List<?> list)) {
             return "Error: find() expects a list as the first argument.";
         }
         return list.contains(item);
@@ -142,6 +144,7 @@ public final class Builtins {
         }
 
         try {
+            // Try parsing as integer first
             if (!s.contains(".") && !s.toLowerCase().contains("e")) {
                 return Integer.parseInt(s);
             }
