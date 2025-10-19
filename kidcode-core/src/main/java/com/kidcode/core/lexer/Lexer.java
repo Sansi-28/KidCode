@@ -31,6 +31,7 @@ public class Lexer {
         keywords.put("down", TokenType.DOWN);
         keywords.put("color", TokenType.COLOR);
         keywords.put("define", TokenType.DEFINE);
+        keywords.put("home", TokenType.HOME);
     }
 
     public Lexer(String input) {

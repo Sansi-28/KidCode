@@ -1,0 +1,11 @@
+# This script tests the 'home' command.
+
+# 1. Move away from the center and draw a line
+move forward 100 
+
+# 2. Go back to the center without drawing a line
+home 
+
+# 3. Draw a new line starting from the center
+turn right 90 
+move forward 50 

@@ -73,6 +73,7 @@ public class Parser {
             case PEN: return parsePenStatement();
             case COLOR: return parseSetColorStatement();
             case DEFINE: return parseFunctionDefinitionStatement();
+            case HOME: return parseHomeStatement();
             case IDENTIFIER: return parseFunctionCallStatement();
             default:
                 errors.add("Error line " + currentToken().lineNumber() + ": Invalid start of a statement: '" + currentToken().literal() + "'");
@@ -135,6 +136,12 @@ public class Parser {
         Expression colorName = parseExpression(Precedence.LOWEST);
         advanceToNextStatement();
         return new SetColorStatement(colorName);
+    }
+
+    private HomeStatement parseHomeStatement() {
+        // The 'home' command takes no arguments.
+        advanceToNextStatement();
+        return new HomeStatement();
     }
     
     // Function and control flow statements manage their own token advancement because they are complex.
