@@ -103,19 +103,20 @@ public final class Builtins {
     }
 
     private static Object afterFunction(List<Object> args) {
-        if (args.size() != 1) {
-            return "Error: after() expects exactly 1 argument: a list.";
-        }
-        Object backpack = args.get(0);
-        if (!(backpack instanceof List<?> list)) {
-            return "Error: after() expects a list.";
-        }
-        if (list.isEmpty()) {
-            return new ArrayList<>(); // Return empty mutable list
-        }
-        // Return a new mutable list starting from index 1
-        return new ArrayList<>(list.subList(1, list.size()));
+    if (args.size() != 1) {
+        return "Error: after() expects exactly 1 argument: a list.";
     }
+    Object backpack = args.get(0);
+    if (!(backpack instanceof List<?> list)) {
+        return "Error: after() expects a list.";
+    }
+    if (list.isEmpty()) {
+        return List.of(); // Return empty immutable list
+    }
+    // Return a new immutable list starting from index 1
+    return List.copyOf(list.subList(1, list.size()));
+}
+
 
     private static Object findFunction(List<Object> args) {
         if (args.size() != 2) {
