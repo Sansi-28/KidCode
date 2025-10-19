@@ -154,4 +154,23 @@ public final class Builtins {
             return "Error: solve() cannot convert input to a number.";
         }
     }
+    private static Object kindFunction(List<Object> args) {
+        if (args.size() != 1) {
+            return "Error: kind() expects exactly 1 argument, but got " + args.size();
+        }
+        Object obj = args.get(0);
+
+        if (obj instanceof Integer || obj instanceof Double || obj instanceof Float || obj instanceof Long) {
+            return "number";
+        }
+        if (obj instanceof String) {
+            return "word";
+        }
+        if (obj instanceof List<?>) {
+            return "backpack";
+        }
+        // Fallback for other object types
+        return obj.getClass().getSimpleName().toLowerCase();
+    }   
+
 }
