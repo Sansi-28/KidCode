@@ -23,7 +23,8 @@ public final class Builtins {
             "back", new Builtin(Builtins::backFunction),
             "after", new Builtin(Builtins::afterFunction),
             "find", new Builtin(Builtins::findFunction),
-            "solve", new Builtin(Builtins::solveFunction)
+            "solve", new Builtin(Builtins::solveFunction),
+            "kind", new Builtin(Builtins::kindFunction) // ✅ registered here
         );
     }
 
@@ -83,7 +84,7 @@ public final class Builtins {
             return "Error: front() expects a list.";
         }
         if (list.isEmpty()) {
-            return null; // Return null for empty list
+            return null;
         }
         return list.get(0);
     }
@@ -97,26 +98,24 @@ public final class Builtins {
             return "Error: back() expects a list.";
         }
         if (list.isEmpty()) {
-            return null; // Return null for empty list
+            return null;
         }
         return list.get(list.size() - 1);
     }
 
     private static Object afterFunction(List<Object> args) {
-    if (args.size() != 1) {
-        return "Error: after() expects exactly 1 argument: a list.";
+        if (args.size() != 1) {
+            return "Error: after() expects exactly 1 argument: a list.";
+        }
+        Object backpack = args.get(0);
+        if (!(backpack instanceof List<?> list)) {
+            return "Error: after() expects a list.";
+        }
+        if (list.isEmpty()) {
+            return List.of(); // Return empty immutable list
+        }
+        return List.copyOf(list.subList(1, list.size()));
     }
-    Object backpack = args.get(0);
-    if (!(backpack instanceof List<?> list)) {
-        return "Error: after() expects a list.";
-    }
-    if (list.isEmpty()) {
-        return List.of(); // Return empty immutable list
-    }
-    // Return a new immutable list starting from index 1
-    return List.copyOf(list.subList(1, list.size()));
-}
-
 
     private static Object findFunction(List<Object> args) {
         if (args.size() != 2) {
@@ -145,7 +144,6 @@ public final class Builtins {
         }
 
         try {
-            // Try parsing as integer first
             if (!s.contains(".") && !s.toLowerCase().contains("e")) {
                 return Integer.parseInt(s);
             }
@@ -154,6 +152,8 @@ public final class Builtins {
             return "Error: solve() cannot convert input to a number.";
         }
     }
+
+    // --- New kind() built-in ---
     private static Object kindFunction(List<Object> args) {
         if (args.size() != 1) {
             return "Error: kind() expects exactly 1 argument, but got " + args.size();
@@ -171,6 +171,5 @@ public final class Builtins {
         }
         // Fallback for other object types
         return obj.getClass().getSimpleName().toLowerCase();
-    }   
-
+    }
 }
