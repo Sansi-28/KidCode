@@ -20,6 +20,8 @@ public final class Builtins {
             "pack", new Builtin(Builtins::packFunction),
             "front", new Builtin(Builtins::frontFunction),
             "back", new Builtin(Builtins::backFunction),
+            "after", new Builtin(Builtins::afterFunction),
+            "find", new Builtin(Builtins::findFunction),
             "solve", new Builtin(Builtins::solveFunction)
         );
     }
@@ -99,6 +101,32 @@ public final class Builtins {
         return list.get(list.size() - 1);
     }
 
+    private static Object afterFunction(List<Object> args) {
+        if (args.size() != 1) {
+            return "Error: after() expects exactly 1 argument: a list.";
+        }
+        Object backpack = args.get(0);
+        if (!(backpack instanceof List<?> list)) {
+            return "Error: after() expects a list.";
+        }
+        if (list.isEmpty()) {
+            return List.of(); // Return empty list
+        }
+        return list.subList(1, list.size());
+    }
+
+    private static Object findFunction(List<Object> args) {
+        if (args.size() != 2) {
+            return "Error: find() expects 2 arguments: a list and an item to find.";
+        }
+        Object backpack = args.get(0);
+        Object item = args.get(1);
+        if (!(backpack instanceof List<?> list)) {
+            return "Error: find() expects a list as the first argument.";
+        }
+        return list.contains(item);
+    }
+
     private static Object solveFunction(List<Object> args) {
         if (args.size() != 1) {
             return "Error: solve() expects exactly 1 argument (a string).";
@@ -114,7 +142,6 @@ public final class Builtins {
         }
 
         try {
-            // Try parsing as integer first
             if (!s.contains(".") && !s.toLowerCase().contains("e")) {
                 return Integer.parseInt(s);
             }
