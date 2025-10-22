@@ -10,6 +10,9 @@ const helpButton = document.getElementById("help-button");
 const helpModal = document.getElementById("help-modal");
 const closeButton = document.querySelector(".close-button");
 const downloadButton = document.getElementById("download-btn");
+const dragHandle = document.getElementById("drag-handle");
+const editorPanel = document.querySelector(".editor-panel");
+const visualPanel = document.querySelector(".visual-panel");
 
 // --- Key for browser's local storage ---
 const KIDCODE_STORAGE_KEY = "kidcode.savedCode";
@@ -345,3 +348,54 @@ window.addEventListener("click", (event) => {
     helpModal.classList.add("hidden");
   }
 });
+
+// --- 6. PANEL RESIZING LOGIC ---
+if (dragHandle) {
+  dragHandle.addEventListener("mousedown", (e) => {
+    // Prevent text selection while dragging
+    e.preventDefault();
+
+    // Add event listeners to the whole document to track mouse movement
+    // even if the cursor leaves the handle.
+    document.addEventListener("mousemove", handleMouseMove);
+    document.addEventListener("mouseup", handleMouseUp);
+  });
+}
+
+function handleMouseMove(e) {
+  // Get the bounding rectangle of the main container (which is the parent of editorPanel)
+  const containerRect = editorPanel.parentElement.getBoundingClientRect();
+  const containerStart = containerRect.left;
+  const containerWidth = containerRect.width;
+
+  // Calculate the position of the mouse relative to the container
+  const mouseX = e.clientX;
+
+  const handleWidth = dragHandle.offsetWidth;
+
+  // Calculate the desired new width for the editor panel in pixels
+  // We subtract half the handle's width to center the divider on the cursor visually
+  let desiredEditorWidthPx = mouseX - containerStart - handleWidth / 2;
+
+  // Define the minimum width for each panel (matching style.css)
+  const minPanelWidthPx = 400;
+
+  // Clamp the desired editor width to respect min-width for both panels
+  // 1. Editor panel cannot be smaller than minPanelWidthPx
+  desiredEditorWidthPx = Math.max(desiredEditorWidthPx, minPanelWidthPx);
+  // 2. Visual panel cannot be smaller than minPanelWidthPx
+  //    This means editorWidthPx cannot be larger than (containerWidth - handleWidth - minPanelWidthPx)
+  desiredEditorWidthPx = Math.min(desiredEditorWidthPx, containerWidth - handleWidth - minPanelWidthPx);
+
+  // Convert the clamped pixel width back to a percentage
+  const newEditorWidthPercent = (desiredEditorWidthPx / containerWidth) * 100;
+
+  editorPanel.style.flexBasis = `${newEditorWidthPercent}%`;
+  visualPanel.style.flexBasis = `${100 - newEditorWidthPercent}%`;
+}
+
+function handleMouseUp() {
+  // Clean up by removing the event listeners when the mouse is released
+  document.removeEventListener("mousemove", handleMouseMove);
+  document.removeEventListener("mouseup", handleMouseUp);
+}
