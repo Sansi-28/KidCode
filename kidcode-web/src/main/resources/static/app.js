@@ -378,7 +378,7 @@ function handleMouseMove(e) {
   let desiredEditorWidthPx = mouseX - containerStart - handleWidth / 2;
 
   // Define the minimum width for each panel (matching style.css)
-  const minPanelWidthPx = 400;
+  const minPanelWidthPx = 535;
 
   // Clamp the desired editor width to respect min-width for both panels
   // 1. Editor panel cannot be smaller than minPanelWidthPx
