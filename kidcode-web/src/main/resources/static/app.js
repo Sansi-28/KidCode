@@ -2,6 +2,7 @@
 
 // --- 1. GET REFERENCES TO OUR HTML ELEMENTS ---
 const runButton = document.getElementById("run-button");
+const clearButton = document.getElementById("clear-btn");
 const editorContainer = document.getElementById("editor-container");
 const drawingCanvas = document.getElementById("drawing-canvas");
 const outputArea = document.getElementById("output-area");
@@ -13,6 +14,60 @@ const downloadButton = document.getElementById("download-btn");
 
 // --- Key for browser's local storage ---
 const KIDCODE_STORAGE_KEY = "kidcode.savedCode";
+
+const speedRange = document.getElementById("speedRange");
+const speedLabel = document.getElementById("speedLabel");
+
+const speedText = {
+  "0": "Step-by-Step",
+  "1": "Normal",
+  "2": "Fast",
+};
+
+function updateSpeedUI() {
+  speedLabel.textContent = speedText[speedRange.value] || "Normal";
+}
+
+speedRange.addEventListener("input", updateSpeedUI);
+updateSpeedUI();
+
+// Step-by-step control using keyboard
+let nextResolve = null;
+let stepModalShown = false;
+
+
+function waitForNextKey() {
+  return new Promise((resolve) => {
+    nextResolve = resolve;
+  });
+}
+
+
+// Step modal elements
+const stepModal = document.getElementById("step-modal");
+const closeStepModalBtn = document.getElementById("close-step-modal");
+
+if (closeStepModalBtn) {
+  closeStepModalBtn.addEventListener("click", () => {
+    stepModal?.classList.add("hidden");
+  });
+
+   window.addEventListener("keydown", (e) => {
+      if (e.key === "Enter" && !stepModal.classList.contains("hidden")) {
+        stepModal.classList.add("hidden");
+      }
+    });
+}
+
+
+window.addEventListener("keydown", (e) => {
+  if (e.key === "Enter" && nextResolve) {
+    e.preventDefault();
+    nextResolve(); // resolve immediately
+    nextResolve = null;
+  }
+});
+
 
 // --- MONACO: Global variable to hold the editor instance ---
 let editor;
@@ -178,6 +233,7 @@ runButton.addEventListener("click", async () => {
 
   // ✅ Always start with a fresh canvas before execution
   clearCanvas();
+  stepModalShown = false;
   outputArea.textContent = "";
 
   try {
@@ -197,6 +253,17 @@ runButton.addEventListener("click", async () => {
     logToOutput(`Network or server error: ${error.message}`, "error");
   }
 });
+
+clearButton.addEventListener("click", () => {
+  try {
+    clearCanvas(); // wipes Cody's canvas
+    outputArea.textContent = ""; // clears the log area
+    logToOutput("Canvas cleared");
+  } catch (error) {
+    logToOutput(`Error while clearing: ${error.message}`, "error");
+  }
+});
+
 
 // --- NEW: Event listener for Download button ---
 if (downloadButton) {
@@ -279,8 +346,20 @@ function logToOutput(message, type = "info") {
 let drawnLines = [];
 let codyState = { x: 250, y: 250, direction: 0, color: "blue" };
 
-function renderEvents(events) {
+async function renderEvents(events) {
   if (!events || events.length === 0) return;
+
+const speed = parseInt(speedRange.value, 10);
+ let delay;
+  if (speed === 0) delay = null;    // step mode
+  else if (speed === 1) delay = 300; // normal
+  else delay = 80;                  // fast
+
+  if (speed === 0 && stepModal && !stepModalShown) {
+    stepModalShown = true;
+    stepModal.classList.remove("hidden"); // show it once
+    await new Promise((r) => setTimeout(r, 300));
+  }
 
   for (const event of events) {
     switch (event.type) {
@@ -288,6 +367,7 @@ function renderEvents(events) {
         drawnLines = [];
         codyState = { x: 250, y: 250, direction: 0, color: "blue" };
         break;
+
       case "MoveEvent":
         if (
           event.isPenDown &&
@@ -308,16 +388,27 @@ function renderEvents(events) {
           color: event.color,
         };
         break;
+
       case "SayEvent":
         logToOutput(`Cody says: ${event.message}`);
         break;
+
       case "ErrorEvent":
         logToOutput(`ERROR: ${event.errorMessage}`, "error");
         break;
     }
+
+    redrawCanvas();
+    if (speed === 0) {
+          // step-by-step: wait for user key (Enter/→)
+          await waitForNextKey();
+        } else {
+          // timed mode: wait delay milliseconds
+          await new Promise((resolve) => setTimeout(resolve, delay));
+        }
+      }
   }
-  redrawCanvas();
-}
+
 
 function redrawCanvas() {
   ctx.clearRect(0, 0, drawingCanvas.width, drawingCanvas.height);
