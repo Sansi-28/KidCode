@@ -24,20 +24,29 @@ header {
 
 .container {
   display: flex;
-  flex-wrap: wrap;
-  flex-grow: 1;
+  /* flex-wrap: wrap; REMOVED to prevent panels from stacking */
+  /* flex-grow: 1; REMOVED to allow container to shrink-wrap content height */
   padding: 20px;
-  gap: 20px;
+  gap: 0; /* REMOVED gap to place handle directly between panels */
 }
 
 .editor-panel, .visual-panel {
-  flex: 1;
-  min-width: 400px;
+  /* flex: 1; REPLACED with flex-basis for JS control */
+  flex-basis: 50%; /* Initial width */
+  min-width: 535px;
   background-color: #f0f8ff; /* soft light blue */
   border-radius: 8px;
   box-shadow: 0 4px 12px rgba(0,0,0,0.1);
   display: flex;
   flex-direction: column;
+  overflow: hidden; /* Prevents content from spilling during resize */
+}
+
+/* The draggable divider between panels */
+#drag-handle {
+    width: 10px;
+    cursor: col-resize; /* Indicates this is a horizontal resizer */
+    background-color: #e0e0e0;
 }
 
 
