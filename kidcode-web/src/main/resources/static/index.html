@@ -31,7 +31,7 @@
               </select>
             </div>
             <label for="speedRange">Speed: <span id="speedLabel">Normal</span></label>
-            <input type="range" id="speedRange" min="0" max="2" step="1" value="1">
+            <input type="range" id="speedRange" min="0" max="2" step="1" value="1" aria-label="Execution speed control: Step-by-Step, Normal, or Fast">
           </div>
 
           <div class="panel-controls">
@@ -62,8 +62,8 @@
         <div class="panel-header">
           <h3>Cody's Canvas</h3>
                 <div>
-                    <button id="clear-btn">Clear</button>
-                    <button id="download-btn">Download Drawing</button>
+                  <button id="clear-btn" aria-label="Clear canvas and output log">Clear</button>
+                  <button id="download-btn">Download Drawing</button>
                 </div>
         </div>
         <canvas id="drawing-canvas" width="500" height="500"></canvas>

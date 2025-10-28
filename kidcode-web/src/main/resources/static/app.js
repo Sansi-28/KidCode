@@ -56,7 +56,7 @@ if (closeStepModalBtn) {
   });
 
    window.addEventListener("keydown", (e) => {
-      if (e.key === "Enter" && !stepModal.classList.contains("hidden")) {
+      if ((e.key === "Enter" || e.key === "Escape") && !stepModal.classList.contains("hidden")) {
         stepModal.classList.add("hidden");
       }
     });
@@ -229,12 +229,20 @@ function initializeExamples() {
   });
 }
 
+let isExecuting = false;
+
 // --- 2. ADD EVENT LISTENER TO THE RUN BUTTON ---
 // --- 1️⃣ Event listener for Run button ---
 runButton.addEventListener("click", async () => {
+  if (isExecuting) {
+    logToOutput("Execution already in progress. Please wait.", "error");
+    return;
+  }
+  isExecuting = true;
+
   const code = editor.getValue();
 
-  // ✅ Always start with a fresh canvas before execution
+  // Always start with a fresh canvas before execution
   clearCanvas();
   stepModalShown = false;
   outputArea.textContent = "";
@@ -251,16 +259,21 @@ runButton.addEventListener("click", async () => {
     }
 
     const events = await response.json();
-    renderEvents(events);
+    await renderEvents(events);
   } catch (error) {
     logToOutput(`Network or server error: ${error.message}`, "error");
   }
+  finally {
+     isExecuting = false;
+    }
 });
 
 clearButton.addEventListener("click", () => {
   try {
     clearCanvas(); // wipes Cody's canvas
     outputArea.textContent = ""; // clears the log area
+    drawnLines = [];
+    codyState = { x: 250, y: 250, direction: 0, color: "blue" };
     logToOutput("Canvas cleared");
   } catch (error) {
     logToOutput(`Error while clearing: ${error.message}`, "error");
@@ -349,68 +362,81 @@ function logToOutput(message, type = "info") {
 let drawnLines = [];
 let codyState = { x: 250, y: 250, direction: 0, color: "blue" };
 
+
+
 async function renderEvents(events) {
-  if (!events || events.length === 0) return;
 
-const speed = parseInt(speedRange.value, 10);
- let delay;
-  if (speed === 0) delay = null;    // step mode
-  else if (speed === 1) delay = 300; // normal
-  else delay = 80;                  // fast
+  try {
+    if (!events || events.length === 0) return;
 
-  if (speed === 0 && stepModal && !stepModalShown) {
-    stepModalShown = true;
-    stepModal.classList.remove("hidden"); // show it once
-    await new Promise((r) => setTimeout(r, 300));
-  }
+    const speed = parseInt(speedRange.value, 10);
+    let delay;
+    if (speed === 0) delay = null;
+    else if (speed === 1) delay = 300;
+    else delay = 80;
 
-  for (const event of events) {
-    switch (event.type) {
-      case "ClearEvent":
-        drawnLines = [];
-        codyState = { x: 250, y: 250, direction: 0, color: "blue" };
-        break;
+    if (speed === 0 && stepModal && !stepModalShown) {
+      stepModalShown = true;
+      stepModal.classList.remove("hidden");
 
-      case "MoveEvent":
-        if (
-          event.isPenDown &&
-          (event.fromX !== event.toX || event.fromY !== event.toY)
-        ) {
-          drawnLines.push({
-            fromX: event.fromX,
-            fromY: event.fromY,
-            toX: event.toX,
-            toY: event.toY,
-            color: event.color,
-          });
-        }
-        codyState = {
-          x: event.toX,
-          y: event.toY,
-          direction: event.newDirection,
-          color: event.color,
-        };
-        break;
-
-      case "SayEvent":
-        logToOutput(`Cody says: ${event.message}`);
-        break;
-
-      case "ErrorEvent":
-        logToOutput(`ERROR: ${event.errorMessage}`, "error");
-        break;
+      // wait until modal is closed
+      await new Promise((resolve) => {
+        const interval = setInterval(() => {
+          if (stepModal.classList.contains("hidden")) {
+            clearInterval(interval);
+            resolve();
+          }
+        }, 50);
+      });
     }
 
-    redrawCanvas();
-    if (speed === 0) {
-          // step-by-step: wait for user key (Enter/→)
-          await waitForNextKey();
-        } else {
-          // timed mode: wait delay milliseconds
-          await new Promise((resolve) => setTimeout(resolve, delay));
-        }
+    for (const event of events) {
+      switch (event.type) {
+        case "ClearEvent":
+          drawnLines = [];
+          codyState = { x: 250, y: 250, direction: 0, color: "blue" };
+          break;
+
+        case "MoveEvent":
+          if (
+            event.isPenDown &&
+            (event.fromX !== event.toX || event.fromY !== event.toY)
+          ) {
+            drawnLines.push({
+              fromX: event.fromX,
+              fromY: event.fromY,
+              toX: event.toX,
+              toY: event.toY,
+              color: event.color,
+            });
+          }
+          codyState = {
+            x: event.toX,
+            y: event.toY,
+            direction: event.newDirection,
+            color: event.color,
+          };
+          break;
+
+        case "SayEvent":
+          logToOutput(`Cody says: ${event.message}`);
+          break;
+
+        case "ErrorEvent":
+          logToOutput(`ERROR: ${event.errorMessage}`, "error");
+          break;
       }
+
+      redrawCanvas();
+
+      if (speed === 0) {
+        await waitForNextKey(); // step mode
+      } else {
+        await new Promise((resolve) => setTimeout(resolve, delay));
+      }
+    }
   }
+}
 
 
 function redrawCanvas() {
