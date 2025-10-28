@@ -274,8 +274,7 @@ runButton.addEventListener("click", async () => {
     await renderEvents(events);
   } catch (error) {
     logToOutput(`Network or server error: ${error.message}`, "error");
-  }
-  finally {
+  }finally {
      isExecuting = false;
      nextResolve = null;
      runButton.disabled = false;
