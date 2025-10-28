@@ -28,11 +28,14 @@ const speedText = {
 };
 
 function updateSpeedUI() {
+  if (!speedRange || !speedLabel) return;
   speedLabel.textContent = speedText[speedRange.value] || "Normal";
 }
 
-speedRange.addEventListener("input", updateSpeedUI);
-updateSpeedUI();
+if (speedRange) {
+  speedRange.addEventListener("input", updateSpeedUI);
+  updateSpeedUI();
+}
 
 // Step-by-step control using keyboard
 let nextResolve = null;
@@ -245,7 +248,8 @@ runButton.addEventListener("click", async () => {
   }
   isExecuting = true;
   runButton.blur();
-
+  runButton.disabled = true;
+  if (clearButton) clearButton.disabled = true;
   const code = editor.getValue();
 
   // Always start with a fresh canvas before execution
@@ -274,6 +278,8 @@ runButton.addEventListener("click", async () => {
   finally {
      isExecuting = false;
      editor.focus();
+     runButton.disabled = false;
+     if (clearButton) clearButton.disabled = false;
     }
 });
 
@@ -378,13 +384,8 @@ async function renderEvents(events) {
   try {
     if (!events || events.length === 0) return;
 
-    const speed = parseInt(speedRange.value, 10);
-    let delay;
-    if (speed === 0) delay = null;
-    else if (speed === 1) delay = 300;
-    else delay = 80;
-
-    if (speed === 0 && stepModal && !stepModalShown) {
+    const initialSpeed = parseInt(speedRange.value, 10);
+    if (initialSpeed === 0 && stepModal && !stepModalShown) {
       stepModalShown = true;
       stepModal.classList.remove("hidden");
 
@@ -399,6 +400,8 @@ async function renderEvents(events) {
     }
 
     for (const event of events) {
+    const speed = parseInt(speedRange.value, 10);
+    const delay = speed === 0 ? null : (speed === 1 ? 300 : 80);
       switch (event.type) {
         case "ClearEvent":
           drawnLines = [];
@@ -437,12 +440,28 @@ async function renderEvents(events) {
 
       redrawCanvas();
 
-      if (speed === 0) {
-        await waitForNextKey(); // step mode
-      } else {
-        await new Promise((resolve) => setTimeout(resolve, delay));
-      }
-    }
+ if (speed === 0) {
+   // If step mode is active and the modal hasn't been shown yet
+   if (stepModal && !stepModalShown) {
+     stepModalShown = true;
+     stepModal.classList.remove("hidden");
+
+     // Wait until the modal is closed
+     await new Promise((resolve) => {
+       const onClose = () => {
+         stepModal.removeEventListener("closed", onClose);
+         resolve();
+       };
+       stepModal.addEventListener("closed", onClose, { once: true });
+     });
+   }
+
+   await waitForNextKey(); // step mode
+ } else {
+   await new Promise((resolve) => setTimeout(resolve, delay));
+ }
+
+  }
   }
   catch (error) {
       logToOutput(`Rendering error: ${error.message}`, "error");
