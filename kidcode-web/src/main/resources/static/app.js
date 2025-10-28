@@ -441,16 +441,6 @@ async function renderEvents(events) {
       redrawCanvas();
 
  if (speed === 0) {
- if (stepModal && !stepModalShown) {
-         stepModalShown = true;
-       stepModal.classList.remove("hidden");
-         await new Promise((resolve) => {
-           const onClose = () => {
-             stepModal.removeEventListener("closed", onClose);
-            resolve();
-                       };
-           stepModal.addEventListener("closed", onClose, { once: true });
-        });       }
    await waitForNextKey(); // step mode
  } else {
    await new Promise((resolve) => setTimeout(resolve, delay));
