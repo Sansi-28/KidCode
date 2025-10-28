@@ -51,15 +51,18 @@ const stepModal = document.getElementById("step-modal");
 const closeStepModalBtn = document.getElementById("close-step-modal");
 
 if (closeStepModalBtn) {
-  closeStepModalBtn.addEventListener("click", () => {
-    stepModal?.classList.add("hidden");
-  });
+  const closeModal = () => {
+    stepModal.classList.add("hidden");
+    stepModal.dispatchEvent(new Event("closed"));
+  };
 
-   window.addEventListener("keydown", (e) => {
-      if ((e.key === "Enter" || e.key === "Escape") && !stepModal.classList.contains("hidden")) {
-        stepModal.classList.add("hidden");
-      }
-    });
+  closeStepModalBtn.addEventListener("click", closeModal);
+
+  window.addEventListener("keydown", (e) => {
+    if ((e.key === "Enter" || e.key === "Escape") && !stepModal.classList.contains("hidden")) {
+      closeModal();
+    }
+  });
 }
 
 
@@ -68,7 +71,9 @@ window.addEventListener("keydown", (e) => {
     e.preventDefault();
     nextResolve(); // resolve immediately
     nextResolve = null;
-  }
+  } else if (e.key === "Enter" && isExecuting) {
+       e.preventDefault();
+     }
 });
 
 
@@ -239,11 +244,14 @@ runButton.addEventListener("click", async () => {
     return;
   }
   isExecuting = true;
+  runButton.blur();
 
   const code = editor.getValue();
 
   // Always start with a fresh canvas before execution
   clearCanvas();
+  drawnLines = [];
+  codyState = { x: 250, y: 250, direction: 0, color: "blue" };
   stepModalShown = false;
   outputArea.textContent = "";
 
@@ -265,6 +273,7 @@ runButton.addEventListener("click", async () => {
   }
   finally {
      isExecuting = false;
+     editor.focus();
     }
 });
 
@@ -379,14 +388,13 @@ async function renderEvents(events) {
       stepModalShown = true;
       stepModal.classList.remove("hidden");
 
-      // wait until modal is closed
+      // Wait for the modal to be closed (event-driven)
       await new Promise((resolve) => {
-        const interval = setInterval(() => {
-          if (stepModal.classList.contains("hidden")) {
-            clearInterval(interval);
-            resolve();
-          }
-        }, 50);
+        const onClose = () => {
+          stepModal.removeEventListener("closed", onClose);
+          resolve();
+        };
+        stepModal.addEventListener("closed", onClose, { once: true });
       });
     }
 
@@ -436,6 +444,10 @@ async function renderEvents(events) {
       }
     }
   }
+  catch (error) {
+      logToOutput(`Rendering error: ${error.message}`, "error");
+      throw error;
+    }
 }
 
 
