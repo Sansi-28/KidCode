@@ -70,13 +70,13 @@ if (closeStepModalBtn) {
 
 
 window.addEventListener("keydown", (e) => {
-  if (e.key === "Enter" && nextResolve) {
+  const isInMonaco = document.activeElement.closest('.monaco-editor'); // detect if typing in editor
+
+  if (e.key === "Enter" && nextResolve && !isInMonaco) {
     e.preventDefault();
-    nextResolve(); // resolve immediately
+    nextResolve();
     nextResolve = null;
-  } else if (e.key === "Enter" && isExecuting) {
-       e.preventDefault();
-     }
+  }
 });
 
 
@@ -247,9 +247,9 @@ runButton.addEventListener("click", async () => {
     return;
   }
   isExecuting = true;
-  runButton.blur();
   runButton.disabled = true;
   if (clearButton) clearButton.disabled = true;
+
   const code = editor.getValue();
 
   // Always start with a fresh canvas before execution
@@ -277,9 +277,10 @@ runButton.addEventListener("click", async () => {
   }
   finally {
      isExecuting = false;
-     editor.focus();
+     nextResolve = null;
      runButton.disabled = false;
      if (clearButton) clearButton.disabled = false;
+     editor.focus();
     }
 });
 
@@ -383,7 +384,6 @@ async function renderEvents(events) {
 
   try {
     if (!events || events.length === 0) return;
-
     const initialSpeed = parseInt(speedRange.value, 10);
     if (initialSpeed === 0 && stepModal && !stepModalShown) {
       stepModalShown = true;
@@ -400,8 +400,8 @@ async function renderEvents(events) {
     }
 
     for (const event of events) {
-    const speed = parseInt(speedRange.value, 10);
-    const delay = speed === 0 ? null : (speed === 1 ? 300 : 80);
+      const speed = parseInt(speedRange.value, 10);
+      const delay = speed === 0 ? null : (speed === 1 ? 300 : 80);
       switch (event.type) {
         case "ClearEvent":
           drawnLines = [];
@@ -441,26 +441,20 @@ async function renderEvents(events) {
       redrawCanvas();
 
  if (speed === 0) {
-   // If step mode is active and the modal hasn't been shown yet
-   if (stepModal && !stepModalShown) {
-     stepModalShown = true;
-     stepModal.classList.remove("hidden");
-
-     // Wait until the modal is closed
-     await new Promise((resolve) => {
-       const onClose = () => {
-         stepModal.removeEventListener("closed", onClose);
-         resolve();
-       };
-       stepModal.addEventListener("closed", onClose, { once: true });
-     });
-   }
-
+ if (stepModal && !stepModalShown) {
+         stepModalShown = true;
+       stepModal.classList.remove("hidden");
+         await new Promise((resolve) => {
+           const onClose = () => {
+             stepModal.removeEventListener("closed", onClose);
+            resolve();
+                       };
+           stepModal.addEventListener("closed", onClose, { once: true });
+        });       }
    await waitForNextKey(); // step mode
  } else {
    await new Promise((resolve) => setTimeout(resolve, delay));
  }
-
   }
   }
   catch (error) {
