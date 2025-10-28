@@ -70,7 +70,7 @@ if (closeStepModalBtn) {
 
 
 window.addEventListener("keydown", (e) => {
-  const isInMonaco = document.activeElement.closest('.monaco-editor'); // detect if typing in editor
+  const isInMonaco = document.activeElement?.closest('.monaco-editor'); // detect if typing in editor
 
   if (e.key === "Enter" && nextResolve && !isInMonaco) {
     e.preventDefault();
