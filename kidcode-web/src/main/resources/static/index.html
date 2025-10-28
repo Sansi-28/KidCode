@@ -30,6 +30,8 @@
                 <option value="">Select an Example</option>
               </select>
             </div>
+            <label for="speedRange">Speed: <span id="speedLabel">Normal</span></label>
+            <input type="range" id="speedRange" min="0" max="2" step="1" value="1" aria-label="Execution speed control: Step-by-Step, Normal, or Fast">
           </div>
 
           <div class="panel-controls">
@@ -60,7 +62,8 @@
         <div class="panel-header">
           <h3>Cody's Canvas</h3>
                 <div>
-                    <button id="download-btn">Download Drawing</button>
+                  <button id="clear-btn" aria-label="Clear canvas and output log">Clear</button>
+                  <button id="download-btn">Download Drawing</button>
                 </div>
         </div>
         <canvas id="drawing-canvas" width="500" height="500"></canvas>
@@ -249,6 +252,18 @@ color colors[0]</code></pre>
         </div>
       </div>
     </div>
+    <div id="step-modal" class="modal hidden">
+      <div class="modal-content" style="max-width:420px; text-align:center;">
+        <h2 style="margin-top:0;">Step Mode</h2>
+        <p style="margin:0 0 1rem;">
+          In Step mode, Cody advances one event at a time. Press <b>Enter</b> to move to the next step.
+        </p>
+        <button id="close-step-modal" class="animated-btn run-btn" style="padding:8px 14px;">
+          Got it
+        </button>
+      </div>
+    </div>
+
     <script src="examples.js"></script>
     <script src="app.js"></script>
   </body>

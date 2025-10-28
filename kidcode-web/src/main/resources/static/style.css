@@ -447,3 +447,36 @@ footer {
   transform: translateY(0) scale(0.98);
   box-shadow: 0 3px 6px rgba(243, 156, 18, 0.2);
 }
+
+
+#clear-btn {
+  background: linear-gradient(145deg, #74b9ff 0%, #0984e3 100%);
+  color: white;
+  border: none;
+  border-radius: 10px;
+  padding: 10px 20px;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 4px 8px rgba(9, 132, 227, 0.25);
+  transition: all 0.25s ease;
+  font-family: 'Poppins', sans-serif;
+}
+
+#clear-btn:hover {
+  background: linear-gradient(145deg, #82ccff 0%, #0a74d3 100%);
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: 0 6px 14px rgba(9, 132, 227, 0.35);
+}
+
+#clear-btn:active {
+  background: linear-gradient(145deg, #0a6acb 0%, #0756b0 100%);
+  transform: translateY(0) scale(0.98);
+  box-shadow: 0 3px 6px rgba(9, 132, 227, 0.2);
+}
+
+#speedLabel {
+  display: inline-block;
+  min-width: 125px;
+  text-align: left;
+}
+

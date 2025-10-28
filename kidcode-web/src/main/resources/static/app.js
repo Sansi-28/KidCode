@@ -2,6 +2,7 @@
 
 // --- 1. GET REFERENCES TO OUR HTML ELEMENTS ---
 const runButton = document.getElementById("run-button");
+const clearButton = document.getElementById("clear-btn");
 const editorContainer = document.getElementById("editor-container");
 const drawingCanvas = document.getElementById("drawing-canvas");
 const outputArea = document.getElementById("output-area");
@@ -16,6 +17,68 @@ const visualPanel = document.querySelector(".visual-panel");
 
 // --- Key for browser's local storage ---
 const KIDCODE_STORAGE_KEY = "kidcode.savedCode";
+
+const speedRange = document.getElementById("speedRange");
+const speedLabel = document.getElementById("speedLabel");
+
+const speedText = {
+  "0": "Step-by-Step",
+  "1": "Normal",
+  "2": "Fast",
+};
+
+function updateSpeedUI() {
+  if (!speedRange || !speedLabel) return;
+  speedLabel.textContent = speedText[speedRange.value] || "Normal";
+}
+
+if (speedRange) {
+  speedRange.addEventListener("input", updateSpeedUI);
+  updateSpeedUI();
+}
+
+// Step-by-step control using keyboard
+let nextResolve = null;
+let stepModalShown = false;
+
+
+function waitForNextKey() {
+  return new Promise((resolve) => {
+    nextResolve = resolve;
+  });
+}
+
+
+// Step modal elements
+const stepModal = document.getElementById("step-modal");
+const closeStepModalBtn = document.getElementById("close-step-modal");
+
+if (closeStepModalBtn) {
+  const closeModal = () => {
+    stepModal.classList.add("hidden");
+    stepModal.dispatchEvent(new Event("closed"));
+  };
+
+  closeStepModalBtn.addEventListener("click", closeModal);
+
+  window.addEventListener("keydown", (e) => {
+    if ((e.key === "Enter" || e.key === "Escape") && !stepModal.classList.contains("hidden")) {
+      closeModal();
+    }
+  });
+}
+
+
+window.addEventListener("keydown", (e) => {
+  const isInMonaco = document.activeElement?.closest('.monaco-editor'); // detect if typing in editor
+
+  if (e.key === "Enter" && nextResolve && !isInMonaco) {
+    e.preventDefault();
+    nextResolve();
+    nextResolve = null;
+  }
+});
+
 
 // --- MONACO: Global variable to hold the editor instance ---
 let editor;
@@ -174,13 +237,26 @@ function initializeExamples() {
   });
 }
 
+let isExecuting = false;
+
 // --- 2. ADD EVENT LISTENER TO THE RUN BUTTON ---
 // --- 1️⃣ Event listener for Run button ---
 runButton.addEventListener("click", async () => {
+  if (isExecuting) {
+    logToOutput("Execution already in progress. Please wait.", "error");
+    return;
+  }
+  isExecuting = true;
+  runButton.disabled = true;
+  if (clearButton) clearButton.disabled = true;
+
   const code = editor.getValue();
 
-  // ✅ Always start with a fresh canvas before execution
+  // Always start with a fresh canvas before execution
   clearCanvas();
+  drawnLines = [];
+  codyState = { x: 250, y: 250, direction: 0, color: "blue" };
+  stepModalShown = false;
   outputArea.textContent = "";
 
   try {
@@ -195,11 +271,30 @@ runButton.addEventListener("click", async () => {
     }
 
     const events = await response.json();
-    renderEvents(events);
+    await renderEvents(events);
   } catch (error) {
     logToOutput(`Network or server error: ${error.message}`, "error");
+  }finally {
+     isExecuting = false;
+     nextResolve = null;
+     runButton.disabled = false;
+     if (clearButton) clearButton.disabled = false;
+     editor.focus();
+    }
+});
+
+clearButton.addEventListener("click", () => {
+  try {
+    clearCanvas(); // wipes Cody's canvas
+    outputArea.textContent = ""; // clears the log area
+    drawnLines = [];
+    codyState = { x: 250, y: 250, direction: 0, color: "blue" };
+    logToOutput("Canvas cleared");
+  } catch (error) {
+    logToOutput(`Error while clearing: ${error.message}`, "error");
   }
 });
+
 
 // --- NEW: Event listener for Download button ---
 if (downloadButton) {
@@ -282,45 +377,93 @@ function logToOutput(message, type = "info") {
 let drawnLines = [];
 let codyState = { x: 250, y: 250, direction: 0, color: "blue" };
 
-function renderEvents(events) {
-  if (!events || events.length === 0) return;
 
-  for (const event of events) {
-    switch (event.type) {
-      case "ClearEvent":
-        drawnLines = [];
-        codyState = { x: 250, y: 250, direction: 0, color: "blue" };
-        break;
-      case "MoveEvent":
-        if (
-          event.isPenDown &&
-          (event.fromX !== event.toX || event.fromY !== event.toY)
-        ) {
-          drawnLines.push({
-            fromX: event.fromX,
-            fromY: event.fromY,
-            toX: event.toX,
-            toY: event.toY,
-            color: event.color,
-          });
-        }
-        codyState = {
-          x: event.toX,
-          y: event.toY,
-          direction: event.newDirection,
-          color: event.color,
+
+async function renderEvents(events) {
+
+  try {
+    if (!events || events.length === 0) return;
+    const initialSpeed = parseInt(speedRange.value, 10);
+    if (initialSpeed === 0 && stepModal && !stepModalShown) {
+      stepModalShown = true;
+      stepModal.classList.remove("hidden");
+
+      // Wait for the modal to be closed (event-driven)
+      await new Promise((resolve) => {
+        const onClose = () => {
+          stepModal.removeEventListener("closed", onClose);
+          resolve();
         };
-        break;
-      case "SayEvent":
-        logToOutput(`Cody says: ${event.message}`);
-        break;
-      case "ErrorEvent":
-        logToOutput(`ERROR: ${event.errorMessage}`, "error");
-        break;
+        stepModal.addEventListener("closed", onClose, { once: true });
+      });
     }
+
+    for (const event of events) {
+      const speed = parseInt(speedRange.value, 10);
+      const delay = speed === 0 ? null : (speed === 1 ? 300 : 80);
+      switch (event.type) {
+        case "ClearEvent":
+          drawnLines = [];
+          codyState = { x: 250, y: 250, direction: 0, color: "blue" };
+          break;
+
+        case "MoveEvent":
+          if (
+            event.isPenDown &&
+            (event.fromX !== event.toX || event.fromY !== event.toY)
+          ) {
+            drawnLines.push({
+              fromX: event.fromX,
+              fromY: event.fromY,
+              toX: event.toX,
+              toY: event.toY,
+              color: event.color,
+            });
+          }
+          codyState = {
+            x: event.toX,
+            y: event.toY,
+            direction: event.newDirection,
+            color: event.color,
+          };
+          break;
+
+        case "SayEvent":
+          logToOutput(`Cody says: ${event.message}`);
+          break;
+
+        case "ErrorEvent":
+          logToOutput(`ERROR: ${event.errorMessage}`, "error");
+          break;
+      }
+
+      redrawCanvas();
+
+ if (speed === 0) {
+ // Show step modal if user switched to step mode mid-execution
+       if (stepModal && !stepModalShown) {
+            stepModalShown = true;
+            stepModal.classList.remove("hidden");
+            await new Promise((resolve) => {
+              const onClose = () => {
+                stepModal.removeEventListener("closed", onClose);
+                resolve();
+              };
+              stepModal.addEventListener("closed", onClose, { once: true });
+            });
+          }
+          await waitForNextKey(); // step mode
+ } else {
+   await new Promise((resolve) => setTimeout(resolve, delay));
+ }
   }
-  redrawCanvas();
+  }
+  catch (error) {
+      logToOutput(`Rendering error: ${error.message}`, "error");
+      throw error;
+    }
 }
+
 
 function redrawCanvas() {
   ctx.clearRect(0, 0, drawingCanvas.width, drawingCanvas.height);
