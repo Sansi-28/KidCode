@@ -138,6 +138,9 @@ public class Evaluator {
             env.setPosition(newX, newY);
             // Add a move event, but with the pen up so it doesn't draw a line.
             events.add(new ExecutionEvent.MoveEvent(oldX, oldY, newX, newY, env.getDirection(), false, env.getPenColor()));
+        } else if (stmt instanceof ClearStatement) {
+            // Emit a clear event to clear the canvas
+            events.add(new ExecutionEvent.ClearEvent());
         }
     }
 
