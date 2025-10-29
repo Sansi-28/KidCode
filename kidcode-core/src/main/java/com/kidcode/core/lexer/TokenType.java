@@ -5,7 +5,7 @@ public enum TokenType {
     MOVE, FORWARD, TURN, LEFT, RIGHT, SAY, HOME,
 
     // Values
-    NUMBER, STRING,
+    NUMBER, STRING, TRUE, FALSE,
 
     // Special
     ILLEGAL, // Unknown token
