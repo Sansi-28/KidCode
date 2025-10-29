@@ -202,6 +202,8 @@ public class Evaluator {
                     case "!=" -> !l.equals(r);
                     case ">" -> l > r;
                     case "<" -> l < r;
+                    case ">=" -> l >= r;
+                    case "<=" -> l <= r;
                     default -> "Error: Unknown operator '" + infix.operator() + "' for numbers.";
                 };
             }

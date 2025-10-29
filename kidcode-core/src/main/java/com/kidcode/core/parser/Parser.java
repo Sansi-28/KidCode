@@ -19,6 +19,8 @@ public class Parser {
         precedences.put(TokenType.NOT_EQ, Precedence.EQUALS);
         precedences.put(TokenType.LT, Precedence.LESSGREATER);
         precedences.put(TokenType.GT, Precedence.LESSGREATER);
+        precedences.put(TokenType.LTE, Precedence.LESSGREATER);
+        precedences.put(TokenType.GTE, Precedence.LESSGREATER);
         precedences.put(TokenType.PLUS, Precedence.SUM);
         precedences.put(TokenType.MINUS, Precedence.SUM);
         precedences.put(TokenType.STAR, Precedence.PRODUCT);
@@ -253,7 +255,7 @@ public class Parser {
 
         while (precedence.ordinal() < getPeekPrecedence().ordinal()) {
             switch (peekToken().type()) {
-                case PLUS, MINUS, STAR, SLASH, EQ, NOT_EQ, LT, GT:
+                case PLUS, MINUS, STAR, SLASH, EQ, NOT_EQ, LT, GT, LTE, GTE:
                     nextToken();
                     left = parseInfixExpression(left);
                     break;
