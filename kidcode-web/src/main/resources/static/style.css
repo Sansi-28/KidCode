@@ -108,8 +108,28 @@ header {
   font-family: 'Poppins', sans-serif;
 }
 
+#themeSelect {
+  padding: 8px 12px;
+  font-size: 14px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  background-color: #fff;
+  color: #333;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+  outline: none;
+  height: 36px;
+  font-family: 'Poppins', sans-serif;
+}
+
 #exampleSelector:hover,
 #exampleSelector:focus {
+  border-color: #3498db;
+  box-shadow: 0 0 4px rgba(52, 152, 219, 0.3);
+}
+
+#themeSelect:hover,
+#themeSelect:focus {
   border-color: #3498db;
   box-shadow: 0 0 4px rgba(52, 152, 219, 0.3);
 }
@@ -338,6 +358,85 @@ footer {
   border-bottom-left-radius: 8px;
   border-bottom-right-radius: 8px;
   font-family: 'Poppins', sans-serif;
+}
+
+/* 🌙 Dark Theme */
+body.dark-theme {
+    background-color: #101418;
+    color: #e6e6e6;
+}
+
+body.dark-theme header {
+  background-color: #1f2a36;
+  color: #e6e6e6;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.6);
+}
+
+body.dark-theme .editor-panel,
+body.dark-theme .visual-panel {
+  background-color: #0f1923;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.6);
+  border: 1px solid #202b36;
+}
+
+body.dark-theme h3 {
+  color: #e6e6e6;
+}
+
+body.dark-theme #drag-handle {
+  background-color: #1b2430;
+}
+
+body.dark-theme #drawing-canvas {
+  background-color: #0b1016;
+  border: 1px solid #263240;
+}
+
+body.dark-theme .panel-header {
+  border-bottom: 1px solid #263240;
+}
+
+body.dark-theme #exampleSelector,
+body.dark-theme #themeSelect {
+  background-color: #0f1923;
+  color: #e6e6e6;
+  border: 1px solid #2b3a49;
+}
+
+body.dark-theme .help-btn {
+  background-color: #0f1923;
+  color: #7dc1ff;
+  border-color: #2f7ecb;
+}
+
+body.dark-theme .help-btn:hover {
+  background-color: #2f7ecb;
+  color: #ffffff;
+}
+
+body.dark-theme .output-log {
+  background-color: #0f1923;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.6);
+  border: 1px solid #202b36;
+}
+
+body.dark-theme #output-area {
+  background-color: #111a24;
+  color: #d8dee9;
+}
+
+body.dark-theme #help-docs code {
+  background-color: #111a24;
+}
+
+body.dark-theme #help-docs th {
+  background-color: #19242f;
+}
+
+body.dark-theme .modal-content {
+  background-color: #0f1923;
+  border-color: #202b36;
+  color: #e6e6e6;
 }
 
 /* 🪟 Help Modal Styling */
