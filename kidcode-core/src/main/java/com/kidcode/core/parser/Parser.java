@@ -74,6 +74,7 @@ public class Parser {
             case COLOR: return parseSetColorStatement();
             case DEFINE: return parseFunctionDefinitionStatement();
             case HOME: return parseHomeStatement();
+            case CLEAR: return parseClearStatement();
             case IDENTIFIER: return parseFunctionCallStatement();
             default:
                 errors.add("Error line " + currentToken().lineNumber() + ": Invalid start of a statement: '" + currentToken().literal() + "'");
@@ -142,6 +143,12 @@ public class Parser {
         // The 'home' command takes no arguments.
         advanceToNextStatement();
         return new HomeStatement();
+    }
+
+    private ClearStatement parseClearStatement() {
+        // The 'clear' command takes no arguments.
+        advanceToNextStatement();
+        return new ClearStatement();
     }
     
     // Function and control flow statements manage their own token advancement because they are complex.
