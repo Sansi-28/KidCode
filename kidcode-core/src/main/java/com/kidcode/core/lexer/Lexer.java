@@ -124,6 +124,22 @@ public class Lexer {
                     token = new Token(TokenType.ILLEGAL, String.valueOf(ch), lineNumber);
                 }
                 break;
+            case '<':
+                if (peekChar() == '=') {
+                    readChar();
+                    token = new Token(TokenType.LTE, "<=", lineNumber);
+                } else {
+                    token = new Token(TokenType.LT, String.valueOf(ch), lineNumber);
+                }
+                break;
+            case '>':
+                if (peekChar() == '=') {
+                    readChar();
+                    token = new Token(TokenType.GTE, ">=", lineNumber);
+                } else {
+                    token = new Token(TokenType.GT, String.valueOf(ch), lineNumber);
+                }
+                break;
             case '"':
                 return new Token(TokenType.STRING, readString(), lineNumber);
             case 0:
