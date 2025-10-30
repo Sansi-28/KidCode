@@ -24,7 +24,9 @@ public final class Builtins {
             "after", new Builtin(Builtins::afterFunction),
             "find", new Builtin(Builtins::findFunction),
             "solve", new Builtin(Builtins::solveFunction),
-            "kind", new Builtin(Builtins::kindFunction) // ✅ registered here
+            "kind", new Builtin(Builtins::kindFunction),
+            "surprise", new Builtin(Builtins::surpriseFunction),
++           "tidy", new Builtin(Builtins::tidyFunction)
         );
     }
 
@@ -175,4 +177,38 @@ public final class Builtins {
         // Fallback for other object types
         return obj.getClass().getSimpleName().toLowerCase();
     }
+    private static Object surpriseFunction(List<Object> args) {
+    if (args.size() != 2) {
+        return "Error: surprise() expects 2 numbers: from and to.";
+    }
+    Object a = args.get(0);
+    Object b = args.get(1);
+
+    if (!(a instanceof Number) || !(b instanceof Number)) {
+        return "Error: surprise() arguments must be numbers.";
+    }
+
+    double from = ((Number) a).doubleValue();
+    double to = ((Number) b).doubleValue();
+
+    if (from > to) {
+        return "Error: surprise() 'from' must be <= 'to'.";
+    }
+
+    double result = from + Math.random() * (to - from);
+    return (int) Math.round(result);
+}
+
+private static Object tidyFunction(List<Object> args) {
+    if (args.size() != 1) {
+        return "Error: tidy() expects exactly 1 number.";
+    }
+    Object num = args.get(0);
+
+    if (!(num instanceof Number number)) {
+        return "Error: tidy() argument must be a number.";
+    }
+
+    return Math.round(number.doubleValue());
+}
 }
