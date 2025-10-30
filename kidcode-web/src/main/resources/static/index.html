@@ -18,6 +18,33 @@
   <body>
     <header>
       <h1>KidCode Web Interpreter 🎨</h1>
+      <div class="header-actions">
+        <label for="themeToggle" class="sr-only">Toggle theme</label>
+        <input type="checkbox" id="themeToggle" aria-label="Toggle theme" />
+        <label class="toggle-switch" for="themeToggle" aria-hidden="true">
+          <span class="icon sun">
+            <svg viewBox="0 0 24 24" focusable="false" aria-hidden="true">
+              <circle cx="12" cy="12" r="4" fill="currentColor"/>
+              <g stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                <line x1="12" y1="1" x2="12" y2="4"/>
+                <line x1="12" y1="20" x2="12" y2="23"/>
+                <line x1="1" y1="12" x2="4" y2="12"/>
+                <line x1="20" y1="12" x2="23" y2="12"/>
+                <line x1="4.2" y1="4.2" x2="6.3" y2="6.3"/>
+                <line x1="17.7" y1="17.7" x2="19.8" y2="19.8"/>
+                <line x1="17.7" y1="6.3" x2="19.8" y2="4.2"/>
+                <line x1="4.2" y1="19.8" x2="6.3" y2="17.7"/>
+              </g>
+            </svg>
+          </span>
+          <span class="icon moon">
+            <svg viewBox="0 0 24 24" focusable="false" aria-hidden="true">
+              <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" fill="currentColor"/>
+            </svg>
+          </span>
+          <span class="slider" aria-hidden="true"></span>
+        </label>
+      </div>
     </header>
 
     <main class="container">

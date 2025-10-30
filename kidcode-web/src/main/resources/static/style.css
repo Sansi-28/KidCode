@@ -19,7 +19,103 @@ header {
   padding: 1rem;
   box-shadow: 0 4px 6px rgba(0,0,0,0.15);
   font-family: 'Poppins', sans-serif;
+  position: relative; /* enable top-right positioning for actions */
 }
+
+/* Top-right header actions (theme selector) */
+.header-actions {
+  position: absolute;
+  right: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* 🌗 Theme toggle switch */
+#themeToggle {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.toggle-switch {
+  --tw-width: 72px;
+  --tw-height: 36px;
+  --tw-pad: 4px;          /* inner padding for knob track */
+  --tw-knob: 28px;         /* knob diameter */
+
+  position: relative;
+  width: var(--tw-width);
+  height: var(--tw-height);
+  background: #ffffff;
+  border: 1px solid #cfd6dc;
+  border-radius: 999px;
+  cursor: pointer;
+  display: inline-block;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+}
+
+.toggle-switch .icon {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 16px;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  z-index: 3;
+  pointer-events: none;
+  box-sizing: content-box;
+}
+
+.toggle-switch .icon svg {
+  width: 18px;
+  height: 18px;
+  display: block;
+  box-sizing: content-box;
+}
+
+.toggle-switch .icon.sun { color: #f1c40f; left: 25%; transform: translate(-50%, -50%); } /* sun */
+.toggle-switch .icon.moon { color: #a9b5c7; left: 75%; transform: translate(-50%, -50%); } /* moon */
+
+.toggle-switch .slider {
+  position: absolute;
+  top: var(--tw-pad);
+  left: var(--tw-pad);
+  width: var(--tw-knob);
+  height: var(--tw-knob);
+  background: linear-gradient(145deg, #58a9e6 0%, #3498db 100%);
+  border-radius: 50%;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+  transition: transform 0.25s ease, background 0.25s ease, box-shadow 0.25s ease;
+  z-index: 2;
+}
+
+#themeToggle:checked + .toggle-switch .slider {
+  transform: translateX(calc(var(--tw-width) - var(--tw-knob) - (var(--tw-pad) * 2)));
+  background: linear-gradient(145deg, #3b4c5f 0%, #2c3e50 100%);
+}
+
+/* Focus ring for accessibility */
+#themeToggle:focus + .toggle-switch {
+  box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.35);
+}
+
+/* Dark theme adjustments for toggle */
+body.dark-theme .toggle-switch {
+  background: #0f1923;
+  border-color: #2b3a49;
+}
+body.dark-theme .toggle-switch .slider {
+  background: linear-gradient(145deg, #3b4c5f 0%, #2c3e50 100%);
+}
+body.dark-theme .toggle-switch .icon.sun { color: #ffd86b; }
+body.dark-theme .toggle-switch .icon.moon { color: #b8c5d9; }
 
 
 .container {
@@ -94,7 +190,8 @@ header {
   font-family: 'Poppins', sans-serif;
 }
 
-#exampleSelector {
+#exampleSelector,
+#themeSelect {
   padding: 8px 12px;
   font-size: 14px;
   border-radius: 6px;
@@ -109,7 +206,9 @@ header {
 }
 
 #exampleSelector:hover,
-#exampleSelector:focus {
+#exampleSelector:focus,
+#themeSelect:hover,
+#themeSelect:focus {
   border-color: #3498db;
   box-shadow: 0 0 4px rgba(52, 152, 219, 0.3);
 }
@@ -338,6 +437,85 @@ footer {
   border-bottom-left-radius: 8px;
   border-bottom-right-radius: 8px;
   font-family: 'Poppins', sans-serif;
+}
+
+/* 🌙 Dark Theme */
+body.dark-theme {
+    background-color: #101418;
+    color: #e6e6e6;
+}
+
+body.dark-theme header {
+  background-color: #1f2a36;
+  color: #e6e6e6;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.6);
+}
+
+body.dark-theme .editor-panel,
+body.dark-theme .visual-panel {
+  background-color: #0f1923;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.6);
+  border: 1px solid #202b36;
+}
+
+body.dark-theme h3 {
+  color: #e6e6e6;
+}
+
+body.dark-theme #drag-handle {
+  background-color: #1b2430;
+}
+
+body.dark-theme #drawing-canvas {
+  background-color: #0b1016;
+  border: 1px solid #263240;
+}
+
+body.dark-theme .panel-header {
+  border-bottom: 1px solid #263240;
+}
+
+body.dark-theme #exampleSelector,
+body.dark-theme #themeSelect {
+  background-color: #0f1923;
+  color: #e6e6e6;
+  border: 1px solid #2b3a49;
+}
+
+body.dark-theme .help-btn {
+  background-color: #0f1923;
+  color: #7dc1ff;
+  border-color: #2f7ecb;
+}
+
+body.dark-theme .help-btn:hover {
+  background-color: #2f7ecb;
+  color: #ffffff;
+}
+
+body.dark-theme .output-log {
+  background-color: #0f1923;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.6);
+  border: 1px solid #202b36;
+}
+
+body.dark-theme #output-area {
+  background-color: #111a24;
+  color: #d8dee9;
+}
+
+body.dark-theme #help-docs code {
+  background-color: #111a24;
+}
+
+body.dark-theme #help-docs th {
+  background-color: #19242f;
+}
+
+body.dark-theme .modal-content {
+  background-color: #0f1923;
+  border-color: #202b36;
+  color: #e6e6e6;
 }
 
 /* 🪟 Help Modal Styling */

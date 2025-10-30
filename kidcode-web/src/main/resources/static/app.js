@@ -14,6 +14,8 @@ const downloadButton = document.getElementById("download-btn");
 const dragHandle = document.getElementById("drag-handle");
 const editorPanel = document.querySelector(".editor-panel");
 const visualPanel = document.querySelector(".visual-panel");
+const themeSelect = document.getElementById("themeSelect");
+const themeToggle = document.getElementById("themeToggle");
 
 // --- Key for browser's local storage ---
 const KIDCODE_STORAGE_KEY = "kidcode.savedCode";
@@ -26,6 +28,49 @@ const speedText = {
   "1": "Normal",
   "2": "Fast",
 };
+
+// --- Theme handling ---
+const THEME_KEY = "kidcode.theme";
+
+function getSavedTheme() {
+  const saved = localStorage.getItem(THEME_KEY);
+  if (saved === "dark" || saved === "light") return saved;
+  return "light";
+}
+
+function applyTheme(theme) {
+  const isDark = theme === "dark";
+  document.body.classList.toggle("dark-theme", isDark);
+  if (themeSelect) themeSelect.value = theme; // fallback support
+  if (themeToggle) themeToggle.checked = isDark;
+  try {
+    if (typeof monaco !== "undefined") {
+      monaco.editor.setTheme(isDark ? "vs-dark" : "vs-light");
+    }
+  } catch (_) {}
+}
+
+// Initialize theme ASAP to avoid flash
+const initialTheme = getSavedTheme();
+applyTheme(initialTheme);
+// New toggle listener
+if (themeToggle) {
+  themeToggle.checked = initialTheme === "dark";
+  themeToggle.addEventListener("change", () => {
+    const newTheme = themeToggle.checked ? "dark" : "light";
+    localStorage.setItem(THEME_KEY, newTheme);
+    applyTheme(newTheme);
+  });
+}
+// Fallback select listener (if present in DOM)
+if (themeSelect) {
+  themeSelect.value = initialTheme;
+  themeSelect.addEventListener("change", () => {
+    const newTheme = themeSelect.value === "dark" ? "dark" : "light";
+    localStorage.setItem(THEME_KEY, newTheme);
+    applyTheme(newTheme);
+  });
+}
 
 function updateSpeedUI() {
   if (!speedRange || !speedLabel) return;
@@ -173,7 +218,7 @@ require(["vs/editor/editor.main"], function () {
   editor = monaco.editor.create(editorContainer, {
     value: savedCode !== null ? savedCode : defaultCode,
     language: "kidcode",
-    theme: "vs-light",
+    theme: (localStorage.getItem(THEME_KEY) === "dark") ? "vs-dark" : "vs-light",
     automaticLayout: true,
     fontSize: 14,
     minimap: { enabled: false },
