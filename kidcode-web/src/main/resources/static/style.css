@@ -19,7 +19,101 @@ header {
   padding: 1rem;
   box-shadow: 0 4px 6px rgba(0,0,0,0.15);
   font-family: 'Poppins', sans-serif;
+  position: relative; /* enable top-right positioning for actions */
 }
+
+/* Top-right header actions (theme selector) */
+.header-actions {
+  position: absolute;
+  right: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* 🌗 Theme toggle switch */
+#themeToggle {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.toggle-switch {
+  --tw-width: 72px;
+  --tw-height: 36px;
+  --tw-pad: 4px;          /* inner padding for knob track */
+  --tw-knob: 28px;         /* knob diameter */
+
+  position: relative;
+  width: var(--tw-width);
+  height: var(--tw-height);
+  background: #ffffff;
+  border: 1px solid #cfd6dc;
+  border-radius: 999px;
+  cursor: pointer;
+  display: inline-block;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+}
+
+.toggle-switch .icon {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 16px;
+  line-height: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  z-index: 1; /* icons below knob shadow but visible */
+  pointer-events: none;
+}
+
+.toggle-switch .icon svg {
+  width: 18px;
+  height: 18px;
+  display: block;
+}
+
+.toggle-switch .icon.sun { color: #f1c40f; left: 10px; } /* sun */
+.toggle-switch .icon.moon { color: #a9b5c7; right: 10px; } /* moon */
+
+.toggle-switch .slider {
+  position: absolute;
+  top: var(--tw-pad);
+  left: var(--tw-pad);
+  width: var(--tw-knob);
+  height: var(--tw-knob);
+  background: linear-gradient(145deg, #58a9e6 0%, #3498db 100%);
+  border-radius: 50%;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+  transition: transform 0.25s ease, background 0.25s ease, box-shadow 0.25s ease;
+  z-index: 2;
+}
+
+#themeToggle:checked + .toggle-switch .slider {
+  transform: translateX(calc(var(--tw-width) - var(--tw-knob) - (var(--tw-pad) * 2)));
+  background: linear-gradient(145deg, #3b4c5f 0%, #2c3e50 100%);
+}
+
+/* Focus ring for accessibility */
+#themeToggle:focus + .toggle-switch {
+  box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.35);
+}
+
+/* Dark theme adjustments for toggle */
+body.dark-theme .toggle-switch {
+  background: #0f1923;
+  border-color: #2b3a49;
+}
+body.dark-theme .toggle-switch .slider {
+  background: linear-gradient(145deg, #3b4c5f 0%, #2c3e50 100%);
+}
+body.dark-theme .toggle-switch .icon.sun { color: #ffd86b; }
+body.dark-theme .toggle-switch .icon.moon { color: #b8c5d9; }
 
 
 .container {
@@ -94,20 +188,7 @@ header {
   font-family: 'Poppins', sans-serif;
 }
 
-#exampleSelector {
-  padding: 8px 12px;
-  font-size: 14px;
-  border-radius: 6px;
-  border: 1px solid #ccc;
-  background-color: #fff;
-  color: #333;
-  cursor: pointer;
-  transition: all 0.2s ease-in-out;
-  outline: none;
-  height: 36px;
-  font-family: 'Poppins', sans-serif;
-}
-
+#exampleSelector,
 #themeSelect {
   padding: 8px 12px;
   font-size: 14px;
@@ -123,11 +204,7 @@ header {
 }
 
 #exampleSelector:hover,
-#exampleSelector:focus {
-  border-color: #3498db;
-  box-shadow: 0 0 4px rgba(52, 152, 219, 0.3);
-}
-
+#exampleSelector:focus,
 #themeSelect:hover,
 #themeSelect:focus {
   border-color: #3498db;

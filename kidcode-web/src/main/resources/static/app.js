@@ -15,6 +15,7 @@ const dragHandle = document.getElementById("drag-handle");
 const editorPanel = document.querySelector(".editor-panel");
 const visualPanel = document.querySelector(".visual-panel");
 const themeSelect = document.getElementById("themeSelect");
+const themeToggle = document.getElementById("themeToggle");
 
 // --- Key for browser's local storage ---
 const KIDCODE_STORAGE_KEY = "kidcode.savedCode";
@@ -40,7 +41,8 @@ function getSavedTheme() {
 function applyTheme(theme) {
   const isDark = theme === "dark";
   document.body.classList.toggle("dark-theme", isDark);
-  if (themeSelect) themeSelect.value = theme;
+  if (themeSelect) themeSelect.value = theme; // fallback support
+  if (themeToggle) themeToggle.checked = isDark;
   try {
     if (typeof monaco !== "undefined") {
       monaco.editor.setTheme(isDark ? "vs-dark" : "vs-light");
@@ -51,6 +53,16 @@ function applyTheme(theme) {
 // Initialize theme ASAP to avoid flash
 const initialTheme = getSavedTheme();
 applyTheme(initialTheme);
+// New toggle listener
+if (themeToggle) {
+  themeToggle.checked = initialTheme === "dark";
+  themeToggle.addEventListener("change", () => {
+    const newTheme = themeToggle.checked ? "dark" : "light";
+    localStorage.setItem(THEME_KEY, newTheme);
+    applyTheme(newTheme);
+  });
+}
+// Fallback select listener (if present in DOM)
 if (themeSelect) {
   themeSelect.value = initialTheme;
   themeSelect.addEventListener("change", () => {
