@@ -24,7 +24,9 @@ public final class Builtins {
             "after", new Builtin(Builtins::afterFunction),
             "find", new Builtin(Builtins::findFunction),
             "solve", new Builtin(Builtins::solveFunction),
-            "kind", new Builtin(Builtins::kindFunction) // ✅ registered here
+            "kind", new Builtin(Builtins::kindFunction),
+            "surprise", new Builtin(Builtins::surpriseFunction),
++           "tidy", new Builtin(Builtins::tidyFunction)
         );
     }
 
