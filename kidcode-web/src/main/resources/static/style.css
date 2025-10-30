@@ -63,23 +63,25 @@ header {
   transform: translateY(-50%);
   font-size: 16px;
   line-height: 1;
-  display: inline-flex;
+  display: flex;
   align-items: center;
   justify-content: center;
-  width: 18px;
-  height: 18px;
-  z-index: 1; /* icons below knob shadow but visible */
+  width: 20px;
+  height: 20px;
+  z-index: 3;
   pointer-events: none;
+  box-sizing: content-box;
 }
 
 .toggle-switch .icon svg {
   width: 18px;
   height: 18px;
   display: block;
+  box-sizing: content-box;
 }
 
-.toggle-switch .icon.sun { color: #f1c40f; left: 10px; } /* sun */
-.toggle-switch .icon.moon { color: #a9b5c7; right: 10px; } /* moon */
+.toggle-switch .icon.sun { color: #f1c40f; left: 25%; transform: translate(-50%, -50%); } /* sun */
+.toggle-switch .icon.moon { color: #a9b5c7; left: 75%; transform: translate(-50%, -50%); } /* moon */
 
 .toggle-switch .slider {
   position: absolute;
