@@ -126,7 +126,7 @@ Contributions are welcome! Please fork, branch, and submit a pull request.
 
 ## 📄 License
 
-MIT License
+[MIT License](LICENSE)
 
 ---
 **Happy Coding with KidCode!** 🎨✨ 
