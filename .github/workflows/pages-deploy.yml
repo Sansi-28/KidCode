@@ -17,7 +17,7 @@ concurrency:
 
 jobs:
   build-and-publish:
-    # It is best practice to link this job to the "github-pages" environment
+    # It is best practice to link this job to the "github-pages"
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
