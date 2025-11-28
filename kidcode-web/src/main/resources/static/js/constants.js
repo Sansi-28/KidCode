@@ -4,7 +4,7 @@
 export const KIDCODE_STORAGE_KEY = "kidcode.savedCode";
 
 // API base (will be replaced in CI by the secret API_BASE_URL)
-export const API_BASE = "https://kidcode-interpreter.onrender.com";
+export const API_BASE = "__API_BASE_URL__";
 
 // User-facing labels for the speed control
 export const speedText = {
