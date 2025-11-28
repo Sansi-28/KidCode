@@ -10,6 +10,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api") // All routes in this controller will start with /api
+@CrossOrigin(origins = {"https://kidcode.santosh-singh.me", "http://localhost:8080"})
 public class KidCodeController {
 
     // A private record to define the structure of our expected JSON request body.
