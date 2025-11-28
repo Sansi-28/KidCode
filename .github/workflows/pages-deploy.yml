@@ -1,0 +1,67 @@
+name: Build and deploy kidcode-web to GitHub Pages (kidcode.santosh-singh.me)
+
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+jobs:
+  build-and-publish:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Cache Maven repository
+        uses: actions/cache@v4
+        with:
+          path: ~/.m2/repository
+          key: maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            maven-
+
+      - name: Inject API base URL into frontend files
+        if: ${{ secrets.API_BASE_URL != '' }}
+        run: |
+          echo "Replacing placeholder __API_BASE__ with ${{ secrets.API_BASE_URL }}"
+          sed -i "s|__API_BASE__|${{ secrets.API_BASE_URL }}|g" kidcode-web/src/main/resources/static/app.js || true
+
+      - name: Build kidcode-web with Maven
+        run: |
+          mvn -f pom.xml -pl kidcode-web -am -DskipTests package
+
+      - name: Prepare static site directory
+        run: |
+          SRC=kidcode-web/target/classes/static
+          if [ ! -d "$SRC" ]; then
+            echo "Error: expected static files at $SRC but not found."
+            ls -la kidcode-web/target || true
+            exit 1
+          fi
+          rm -rf site-out
+          mkdir -p site-out
+          cp -r $SRC/* site-out/
+
+      - name: Add CNAME for kidcode.santosh-singh.me
+        run: |
+          echo "kidcode.santosh-singh.me" > site-out/CNAME
+
+      - name: Upload static site artifact
+        uses: actions/upload-pages-artifact@v1
+        with:
+          path: ./site-out
+
+      - name: Deploy to GitHub Pages
+        uses: actions/deploy-pages@v1
