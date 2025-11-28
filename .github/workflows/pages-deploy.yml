@@ -45,7 +45,7 @@ jobs:
         # Removed '|| true' to ensure build fails if file is missing
         run: |
           echo "Replacing placeholder __API_BASE__ with $API_BASE_URL"
-          sed -i "s|__API_BASE__|${API_BASE_URL}|g" kidcode-web/src/main/resources/static/js/constants.js
+          sed -i "s|__API_BASE_URL__|${API_BASE_URL}|g" kidcode-web/src/main/resources/static/js/constants.js
 
       - name: Build kidcode-web with Maven
         run: |
