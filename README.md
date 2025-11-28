@@ -5,6 +5,35 @@
 ---
 [![An image of @sansi28's Holopin badges, which is a link to view their full Holopin profile](https://holopin.me/sansi28)](https://holopin.io/@sansi28)
 
+## 🐢 What is KidCode?
+
+**KidCode** is an educational programming language inspired by **turtle graphics** – a visual way to learn programming where a "turtle" moves on the screen, drawing lines according to commands. This approach helps beginners see the results of their code step-by-step, making abstract programming concepts tangible and fun.
+
+### Meet Cody, Your Drawing Companion
+In KidCode, you control a turtle named **"Cody"** using simple, intuitive commands:
+- `move forward 100` – Move Cody forward
+- `turn right 90` – Rotate Cody
+- `pen down` / `pen up` – Control whether Cody draws while moving
+- `color "red"` – Change the drawing color
+
+These basic building blocks allow you to create everything from simple lines to complex patterns, spirals, and geometric art!
+
+### How the Interpreter Works
+
+KidCode uses a **multi-stage interpreter pipeline** that transforms your code into visual output:
+
+1. **Lexer (Tokenization)**: Reads your source code character by character and breaks it into meaningful tokens (keywords, numbers, strings, operators).
+
+2. **Parser (Syntax Analysis)**: Takes the stream of tokens and constructs an Abstract Syntax Tree (AST) that represents the structure of your program. It checks that your code follows KidCode's grammar rules.
+
+3. **Evaluator (Execution)**: Walks through the AST and executes your code, evaluating expressions, managing variables, and handling control flow (loops, conditionals, functions).
+
+4. **Event Generation**: As the evaluator runs, it generates **execution events** (move, turn, say, color change, etc.) instead of directly manipulating the UI. This event-driven architecture keeps the core interpreter UI-agnostic.
+
+5. **Visualization**: The UI layer (desktop or web) consumes these events and renders them on the canvas – currently showing the **final result** of all drawing commands.
+
+---
+
 ## 🏗️ Project Structure (Maven Multi-Module)
 
 This project is organized as a Maven multi-module repository:
