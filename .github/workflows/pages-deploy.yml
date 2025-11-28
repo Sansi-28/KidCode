@@ -10,11 +10,20 @@ permissions:
   pages: write
   id-token: write
 
+# Add concurrency to cancel previous runs if a new commit is pushed quickly
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
 jobs:
   build-and-publish:
+    # It is best practice to link this job to the "github-pages" environment
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    
     runs-on: ubuntu-latest
 
-    # expose the secret as an env var at job level (safe for use in steps)
     env:
       API_BASE_URL: ${{ secrets.API_BASE_URL }}
 
@@ -27,20 +36,16 @@ jobs:
         with:
           distribution: 'temurin'
           java-version: '17'
+          cache: 'maven' # Simplified caching here
 
-      - name: Cache Maven repository
-        uses: actions/cache@v4
-        with:
-          path: ~/.m2/repository
-          key: maven-${{ hashFiles('**/pom.xml') }}
-          restore-keys: |
-            maven-
+      # Manual cache step removed (handled above)
 
       - name: Inject API base URL into frontend files
         if: ${{ env.API_BASE_URL != '' }}
+        # Removed '|| true' to ensure build fails if file is missing
         run: |
           echo "Replacing placeholder __API_BASE__ with $API_BASE_URL"
-          sed -i "s|__API_BASE__|${API_BASE_URL}|g" kidcode-web/src/main/resources/static/app.js || true
+          sed -i "s|__API_BASE__|${API_BASE_URL}|g" kidcode-web/src/main/resources/static/app.js
 
       - name: Build kidcode-web with Maven
         run: |
@@ -48,12 +53,16 @@ jobs:
 
       - name: Prepare static site directory
         run: |
+          # Ensure we are looking at the right spot. 
+          # Spring Boot usually puts static resources in target/classes/static
           SRC=kidcode-web/target/classes/static
+          
           if [ ! -d "$SRC" ]; then
             echo "Error: expected static files at $SRC but not found."
             ls -la kidcode-web/target || true
             exit 1
           fi
+          
           rm -rf site-out
           mkdir -p site-out
           cp -r $SRC/* site-out/
@@ -63,9 +72,10 @@ jobs:
           echo "kidcode.santosh-singh.me" > site-out/CNAME
 
       - name: Upload static site artifact
-        uses: actions/upload-pages-artifact@v1
+        uses: actions/upload-pages-artifact@v3 # Updated to v3
         with:
           path: ./site-out
 
       - name: Deploy to GitHub Pages
-        uses: actions/deploy-pages@v1
+        id: deployment # Added ID to capture the URL output
+        uses: actions/deploy-pages@v4 # Updated to v4
