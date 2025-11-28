@@ -1,6 +1,5 @@
 name: Build and deploy kidcode-web to GitHub Pages (kidcode.santosh-singh.me)
 
-
 on:
   push:
     branches:
@@ -14,6 +13,10 @@ permissions:
 jobs:
   build-and-publish:
     runs-on: ubuntu-latest
+
+    # expose the secret as an env var at job level (safe for use in steps)
+    env:
+      API_BASE_URL: ${{ secrets.API_BASE_URL }}
 
     steps:
       - name: Checkout repository
@@ -34,10 +37,10 @@ jobs:
             maven-
 
       - name: Inject API base URL into frontend files
-        if: ${{ secrets.API_BASE_URL != '' }}
+        if: ${{ env.API_BASE_URL != '' }}
         run: |
-          echo "Replacing placeholder __API_BASE__ with ${{ secrets.API_BASE_URL }}"
-          sed -i "s|__API_BASE__|${{ secrets.API_BASE_URL }}|g" kidcode-web/src/main/resources/static/app.js || true
+          echo "Replacing placeholder __API_BASE__ with $API_BASE_URL"
+          sed -i "s|__API_BASE__|${API_BASE_URL}|g" kidcode-web/src/main/resources/static/app.js || true
 
       - name: Build kidcode-web with Maven
         run: |
