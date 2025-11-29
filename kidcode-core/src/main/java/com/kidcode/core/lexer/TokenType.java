@@ -15,7 +15,7 @@ public enum TokenType {
     REPEAT, END,
     SET, IDENTIFIER, ASSIGN, PLUS, MINUS, STAR, SLASH, LPAREN, RPAREN,
     IF, ELSE, // Keywords
-    GT, LT, EQ, NOT_EQ, // Comparison operators
+    GT, LT, GTE, LTE, EQ, NOT_EQ, // Comparison operators
     PEN, UP, DOWN, COLOR, // Pen and color commands
 
     // NEW for functions and lists
