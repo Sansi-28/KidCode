@@ -244,6 +244,8 @@ public class Parser {
                 break;
             case NUMBER: left = new IntegerLiteral(Integer.parseInt(currentToken().literal())); break;
             case STRING: left = new StringLiteral(currentToken().literal()); break;
+            case TRUE: left = new BooleanLiteral(true); break;
+            case FALSE: left = new BooleanLiteral(false); break;
             case LPAREN: left = parseGroupedExpression(); break;
             case LBRACKET: left = parseListLiteral(); break;
             default:
