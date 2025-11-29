@@ -80,7 +80,19 @@ public class Parser {
                 advanceToNextStatement();
                 return null;
         }
+        };
+
+    if (inner == null) {
+        // Some parse... methods return null on error without consuming tokens.
+        // Advance at least one token to avoid infinite loops.
+        if (position == startPos) {
+            advanceToNextStatement();
+        }
+        return null;
     }
+    return new LocatedStatement(inner, line); // wrap it with line number
+}
+
 
     private MoveStatement parseMoveStatement() {
         nextToken(); // Consume 'forward'
@@ -112,6 +124,7 @@ public class Parser {
         nextToken(); // Consume identifier, move to '='
         if (currentToken().type() != TokenType.ASSIGN) {
             errors.add("Error line " + currentToken().lineNumber() + ": Expected '=' after variable name");
+            advanceToNextStatement();
             return null;
         }
         nextToken(); // Consume '=', move to expression
